@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Memori — Mi panel</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://accounts.google.com/gsi/client"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -400,7 +400,11 @@
   ];
 
   // ── AUTH ────────────────────────────────────────────────────────
-  window.onload = () => {
+  function initGoogle() {
+    if (typeof google === 'undefined' || !google.accounts) {
+      setTimeout(initGoogle, 300);
+      return;
+    }
     tokenClient = google.accounts.oauth2.initTokenClient({
       client_id: CLIENT_ID, scope: SCOPES,
       callback: async (resp) => {
@@ -411,7 +415,9 @@
         loadMensajes();
       }
     });
-  };
+  }
+
+  window.onload = () => { initGoogle(); };
 
   function handleLogin() { tokenClient.requestAccessToken(); }
   function handleLogout() { accessToken = null; mensajes = []; document.getElementById('loginScreen').style.display = 'flex'; }
