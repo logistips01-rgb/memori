@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memori — Mi panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --ink: #1a1612; --ink-light: #4a443c; --ink-muted: #8a8278;
+    --purple: #3D2D8F; --purple-mid: #7F77DD; --purple-light: #EEEDFE;
+    --gold: #C4A882; --gold-light: #F5EFE6; --cream: #FAF8F4;
+    --white: #FFFFFF; --border: rgba(60,40,120,0.12);
+    --sidebar-w: 240px; --success: #3B6D11; --success-bg: #EAF3DE;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--ink); display: flex; min-height: 100vh; }
+
+  /* LOGIN */
+  .login-screen { position: fixed; inset: 0; background: var(--purple); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999; }
+  .login-logo { font-family: 'Cormorant Garamond', serif; font-size: 3rem; font-weight: 300; color: var(--white); letter-spacing: 0.1em; margin-bottom: 0.5rem; }
+  .login-tagline { font-size: 0.82rem; color: rgba(255,255,255,0.5); letter-spacing: 0.1em; margin-bottom: 3rem; }
+  .login-box { background: var(--white); border-radius: 4px; padding: 2.5rem; width: 360px; text-align: center; }
+  .login-box h2 { font-size: 1rem; font-weight: 500; color: var(--ink); margin-bottom: 0.5rem; }
+  .login-box p { font-size: 0.8rem; color: var(--ink-muted); margin-bottom: 2rem; line-height: 1.6; }
+  .google-btn { width: 100%; padding: 0.8rem; background: var(--white); border: 1px solid var(--border); border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 500; color: var(--ink); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.75rem; transition: background 0.2s; }
+  .google-btn:hover { background: var(--cream); border-color: var(--purple-mid); }
+  .google-btn svg { width: 18px; height: 18px; }
+  .login-note { font-size: 0.7rem; color: rgba(255,255,255,0.35); margin-top: 1.5rem; }
+
+  /* SIDEBAR */
+  .sidebar { width: var(--sidebar-w); background: var(--purple); min-height: 100vh; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; z-index: 50; }
+  .sidebar-logo { padding: 2rem 1.5rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
+  .sidebar-logo span { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 400; color: var(--white); letter-spacing: 0.08em; }
+  .sidebar-logo p { font-size: 0.7rem; color: rgba(255,255,255,0.4); margin-top: 0.2rem; }
+  .sidebar-nav { padding: 1.5rem 0; flex: 1; }
+  .nav-label { font-size: 0.62rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.3); padding: 0 1.5rem; margin-bottom: 0.5rem; margin-top: 1.25rem; display: block; }
+  .nav-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 1.5rem; font-size: 0.85rem; color: rgba(255,255,255,0.65); cursor: pointer; transition: background 0.15s, color 0.15s; border-left: 2px solid transparent; text-decoration: none; }
+  .nav-item:hover { background: rgba(255,255,255,0.07); color: var(--white); }
+  .nav-item.active { background: rgba(255,255,255,0.1); color: var(--white); border-left-color: var(--gold); }
+  .nav-item svg { width: 15px; height: 15px; flex-shrink: 0; }
+  .nav-badge { margin-left: auto; background: var(--gold); color: var(--ink); font-size: 0.65rem; font-weight: 500; padding: 0.1rem 0.45rem; border-radius: 10px; }
+  .sidebar-bottom { padding: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); }
+  .user-info { display: flex; align-items: center; gap: 0.75rem; }
+  .user-avatar { width: 34px; height: 34px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 500; color: var(--ink); flex-shrink: 0; overflow: hidden; }
+  .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .user-name { font-size: 0.82rem; color: var(--white); }
+  .user-plan { font-size: 0.68rem; color: var(--gold); }
+  .logout-btn { margin-top: 0.75rem; width: 100%; padding: 0.5rem; background: none; border: 1px solid rgba(255,255,255,0.15); border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 0.72rem; color: rgba(255,255,255,0.4); cursor: pointer; transition: all 0.15s; }
+  .logout-btn:hover { border-color: rgba(255,255,255,0.4); color: var(--white); }
+
+  /* MAIN */
+  .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; }
+  .topbar { background: var(--white); border-bottom: 1px solid var(--border); padding: 1rem 2.5rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; }
+  .topbar-title { font-size: 1rem; font-weight: 500; color: var(--ink); }
+  .topbar-sub { font-size: 0.78rem; color: var(--ink-muted); margin-top: 0.1rem; }
+  .btn-new { background: var(--purple); color: var(--white); padding: 0.6rem 1.3rem; border: none; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 0.5rem; }
+  .btn-new:hover { background: #2d1f6e; }
+  .content { padding: 2.5rem; flex: 1; }
+
+  /* BANNERS */
+  .status-banner { background: var(--success-bg); border: 1px solid rgba(59,109,17,0.2); border-radius: 4px; padding: 1rem 1.5rem; display: flex; align-items: center; gap: 0.75rem; margin-bottom: 2rem; }
+  .status-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; flex-shrink: 0; animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+  .status-text { font-size: 0.85rem; color: var(--success); font-weight: 500; }
+  .status-sub { font-size: 0.78rem; color: #5a8a22; margin-left: auto; }
+
+  /* STATS */
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2.5rem; }
+  .stat-card { background: var(--white); border: 1px solid var(--border); border-radius: 4px; padding: 1.25rem 1.5rem; transition: border-color 0.2s; }
+  .stat-card:hover { border-color: var(--purple-mid); }
+  .stat-label { font-size: 0.72rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 0.6rem; }
+  .stat-value { font-family: 'Cormorant Garamond', serif; font-size: 2.4rem; font-weight: 300; color: var(--purple); line-height: 1; margin-bottom: 0.25rem; }
+  .stat-desc { font-size: 0.72rem; color: var(--ink-muted); }
+
+  /* SECTION HEADER */
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+  .section-header h2 { font-size: 0.88rem; font-weight: 500; color: var(--ink); }
+  .section-header a { font-size: 0.75rem; color: var(--purple-mid); text-decoration: none; cursor: pointer; }
+
+  /* TABLE */
+  .messages-table { background: var(--white); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; margin-bottom: 2.5rem; }
+  .table-head { display: grid; grid-template-columns: 2fr 1.5fr 1.5fr 1fr 1fr 60px; padding: 0.75rem 1.5rem; background: var(--cream); border-bottom: 1px solid var(--border); }
+  .th { font-size: 0.68rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-muted); }
+  .table-row { display: grid; grid-template-columns: 2fr 1.5fr 1.5fr 1fr 1fr 60px; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); align-items: center; transition: background 0.15s; }
+  .table-row:last-child { border-bottom: none; }
+  .table-row:hover { background: var(--purple-light); }
+  .msg-title { font-size: 0.85rem; font-weight: 500; color: var(--ink); margin-bottom: 0.15rem; }
+  .msg-sub { font-size: 0.72rem; color: var(--ink-muted); }
+  .td { font-size: 0.82rem; color: var(--ink-light); }
+  .format-badge { display: inline-flex; align-items: center; font-size: 0.68rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.2rem 0.5rem; border-radius: 2px; }
+  .format-video { background: #E6F1FB; color: #185FA5; }
+  .format-audio { background: var(--gold-light); color: #714f0b; }
+  .format-text { background: var(--purple-light); color: var(--purple); }
+  .status-badge { display: inline-flex; align-items: center; font-size: 0.68rem; font-weight: 500; padding: 0.2rem 0.6rem; border-radius: 2px; }
+  .status-programado { background: var(--success-bg); color: var(--success); }
+  .status-evento { background: var(--gold-light); color: #714f0b; }
+  .status-despedida { background: var(--purple-light); color: var(--purple); }
+  .row-actions { display: flex; gap: 0.4rem; justify-content: flex-end; }
+  .action-btn { width: 28px; height: 28px; border: 1px solid var(--border); border-radius: 2px; background: var(--white); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: border-color 0.15s; text-decoration: none; }
+  .action-btn:hover { border-color: var(--purple-mid); background: var(--purple-light); }
+  .action-btn svg { width: 12px; height: 12px; }
+
+  /* BOTTOM GRID */
+  .bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  .card { background: var(--white); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+  .card-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .card-header h3 { font-size: 0.85rem; font-weight: 500; color: var(--ink); }
+  .card-header span { font-size: 0.72rem; color: var(--purple-mid); cursor: pointer; }
+  .dest-item { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); transition: background 0.15s; }
+  .dest-item:last-child { border-bottom: none; }
+  .dest-item:hover { background: var(--purple-light); }
+  .dest-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 500; flex-shrink: 0; }
+  .dest-name { font-size: 0.83rem; font-weight: 500; color: var(--ink); margin-bottom: 0.1rem; }
+  .dest-sub { font-size: 0.72rem; color: var(--ink-muted); }
+  .dest-count { margin-left: auto; font-size: 0.72rem; color: var(--ink-muted); background: var(--cream); padding: 0.2rem 0.5rem; border-radius: 2px; border: 1px solid var(--border); }
+
+  /* MODAL */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(26,22,18,0.5); z-index: 200; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--white); border-radius: 4px; width: 580px; max-height: 90vh; overflow-y: auto; box-shadow: 0 24px 60px rgba(0,0,0,0.2); }
+  .modal-header { padding: 1.5rem 2rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .modal-header h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 300; color: var(--purple); }
+  .modal-close { width: 28px; height: 28px; border: 1px solid var(--border); border-radius: 2px; background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; color: var(--ink-muted); }
+  .modal-close:hover { background: var(--cream); }
+  .modal-body { padding: 2rem; }
+  .form-row { margin-bottom: 1.2rem; }
+  .form-label { display: block; font-size: 0.72rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-light); margin-bottom: 0.4rem; }
+  .form-input, .form-select, .form-textarea { width: 100%; padding: 0.7rem 0.9rem; border: 1px solid var(--border); border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; color: var(--ink); background: var(--cream); outline: none; transition: border-color 0.2s; }
+  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--purple-mid); background: var(--white); }
+  .form-textarea { resize: vertical; min-height: 80px; }
+  .format-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1.2rem; }
+  .format-opt { border: 1px solid var(--border); border-radius: 3px; padding: 0.8rem; text-align: center; cursor: pointer; transition: border-color 0.15s, background 0.15s; }
+  .format-opt:hover { border-color: var(--purple-mid); background: var(--purple-light); }
+  .format-opt.selected { border-color: var(--purple); background: var(--purple-light); }
+  .format-opt-icon { font-size: 1.3rem; margin-bottom: 0.3rem; }
+  .format-opt-label { font-size: 0.75rem; color: var(--ink-light); font-weight: 500; }
+
+  /* UPLOAD */
+  .upload-area { border: 2px dashed var(--border); border-radius: 4px; padding: 2rem; text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; position: relative; }
+  .upload-area:hover { border-color: var(--purple-mid); background: var(--purple-light); }
+  .upload-area input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .upload-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+  .upload-text { font-size: 0.85rem; color: var(--ink-light); margin-bottom: 0.25rem; }
+  .upload-sub { font-size: 0.72rem; color: var(--ink-muted); }
+
+  /* RECORD */
+  .record-area { border: 1px solid var(--border); border-radius: 4px; padding: 1.5rem; text-align: center; margin-bottom: 1rem; }
+  .record-btn { width: 56px; height: 56px; border-radius: 50%; background: #cc3333; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; transition: background 0.2s; }
+  .record-btn:hover { background: #a82222; }
+  .record-btn.recording { background: #333; animation: recPulse 1s ease-in-out infinite; }
+  .record-btn svg { width: 20px; height: 20px; }
+  @keyframes recPulse { 0%,100%{box-shadow:0 0 0 0 rgba(204,51,51,0.4);} 50%{box-shadow:0 0 0 12px rgba(204,51,51,0);} }
+  .record-time { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; color: var(--ink-muted); margin-bottom: 0.5rem; }
+  .record-hint { font-size: 0.75rem; color: var(--ink-muted); }
+
+  /* PROGRESS */
+  .progress-wrap { margin-top: 1rem; }
+  .progress-label { font-size: 0.75rem; color: var(--ink-light); margin-bottom: 0.4rem; display: flex; justify-content: space-between; }
+  .progress-bar { height: 4px; background: var(--cream); border-radius: 2px; overflow: hidden; border: 1px solid var(--border); }
+  .progress-fill { height: 100%; background: var(--purple); border-radius: 2px; transition: width 0.3s ease; width: 0%; }
+
+  .modal-footer { padding: 1.25rem 2rem; border-top: 1px solid var(--border); display: flex; gap: 0.75rem; justify-content: flex-end; }
+  .btn-cancel { padding: 0.65rem 1.3rem; border: 1px solid var(--border); border-radius: 2px; background: none; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; color: var(--ink-light); cursor: pointer; }
+  .btn-cancel:hover { background: var(--cream); }
+  .btn-save { padding: 0.65rem 1.5rem; background: var(--purple); border: none; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 500; color: var(--white); cursor: pointer; transition: background 0.2s; }
+  .btn-save:hover { background: #2d1f6e; }
+  .btn-save:disabled { background: var(--ink-muted); cursor: not-allowed; }
+
+  /* TOAST */
+  .toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--ink); color: var(--white); padding: 0.9rem 1.5rem; border-radius: 3px; font-size: 0.82rem; z-index: 500; transform: translateY(100px); opacity: 0; transition: transform 0.3s ease, opacity 0.3s ease; max-width: 320px; line-height: 1.5; }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { border-left: 3px solid var(--gold); }
+  .toast.error { border-left: 3px solid #cc3333; }
+
+  .empty-state { padding: 3rem; text-align: center; color: var(--ink-muted); font-size: 0.85rem; }
+
+  .section-panels > div { display: none; }
+  .section-panels > div.active { display: block; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-logo">memori</div>
+  <div class="login-tagline">Legado · Memoria · Presencia</div>
+  <div class="login-box">
+    <h2>Accede a tu panel</h2>
+    <p>Inicia sesión con tu cuenta de Google para acceder a tus mensajes de forma segura.</p>
+    <button class="google-btn" onclick="handleLogin()">
+      <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+      Continuar con Google
+    </button>
+  </div>
+  <p class="login-note">Tus mensajes están protegidos y solo tú puedes acceder a ellos.</p>
+</div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo"><span>memori</span><p>Panel personal</p></div>
+  <nav class="sidebar-nav">
+    <span class="nav-label">Principal</span>
+    <a class="nav-item active" onclick="showSection('dashboard',this)">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+      Inicio
+    </a>
+    <a class="nav-item" onclick="showSection('mensajes',this)">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 3h12v9a1 1 0 01-1 1H3a1 1 0 01-1-1V3z"/><path d="M2 3l6 5 6-5"/></svg>
+      Mis mensajes
+      <span class="nav-badge" id="msgCount">0</span>
+    </a>
+    <a class="nav-item" onclick="showSection('destinatarios',this)">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="6" cy="5" r="3"/><path d="M1 13c0-3 2-5 5-5s5 2 5 5"/></svg>
+      Destinatarios
+    </a>
+    <span class="nav-label">Cuenta</span>
+    <a class="nav-item" onclick="showSection('plan',this)">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="1" y="3" width="14" height="10" rx="1"/><path d="M1 7h14"/></svg>
+      Mi plan
+    </a>
+  </nav>
+  <div class="sidebar-bottom">
+    <div class="user-info">
+      <div class="user-avatar" id="userAvatar">?</div>
+      <div><div class="user-name" id="userName">...</div><div class="user-plan">Plan Premium</div></div>
+    </div>
+    <button class="logout-btn" onclick="handleLogout()">Cerrar sesión</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title" id="topbarTitle">Inicio</div>
+      <div class="topbar-sub" id="topbarSub">Bienvenido de vuelta</div>
+    </div>
+    <button class="btn-new" onclick="openModal()">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 1v14M1 8h14"/></svg>
+      Nuevo mensaje
+    </button>
+  </div>
+
+  <div class="content">
+    <div class="section-panels">
+
+      <!-- DASHBOARD -->
+      <div id="section-dashboard" class="active">
+        <div class="status-banner">
+          <div class="status-dot"></div>
+          <span class="status-text">Tus mensajes están seguros</span>
+          <span class="status-sub" id="lastCheck">Comprobando...</span>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-label">Mensajes guardados</div><div class="stat-value" id="statTotal">0</div><div class="stat-desc" id="statDesc">Cargando...</div></div>
+          <div class="stat-card"><div class="stat-label">Destinatarios</div><div class="stat-value" id="statDest">0</div><div class="stat-desc">Personas que recibirán mensajes</div></div>
+          <div class="stat-card"><div class="stat-label">Drive conectado</div><div class="stat-value" style="font-size:1.8rem;">✓</div><div class="stat-desc">Google Drive activo</div></div>
+          <div class="stat-card"><div class="stat-label">Plan activo</div><div class="stat-value" style="font-size:1.4rem;padding-top:0.4rem;">Premium</div><div class="stat-desc">Pago único — para siempre</div></div>
+        </div>
+        <div class="section-header"><h2>Mensajes recientes</h2><a onclick="showSection('mensajes',null)">Ver todos →</a></div>
+        <div class="messages-table" id="dashTable"><div class="empty-state">Cargando...</div></div>
+        <div class="bottom-grid">
+          <div class="card"><div class="card-header"><h3>Destinatarios</h3><span onclick="showSection('destinatarios',null)">Ver todos</span></div><div id="dashDests"><div class="empty-state" style="padding:1.5rem;">Cargando...</div></div></div>
+          <div class="card">
+            <div class="card-header"><h3>Guardianes</h3></div>
+            <div style="display:flex;align-items:center;gap:1rem;padding:1rem 1.5rem;border-bottom:1px solid var(--border);">
+              <div class="dest-avatar" style="background:var(--purple-light);color:var(--purple);">G</div>
+              <div><div class="dest-name">Guardián principal</div><div class="dest-sub" style="font-size:0.62rem;color:var(--gold);text-transform:uppercase;letter-spacing:0.1em;">Se designa al fallecer</div></div>
+              <span style="margin-left:auto;font-size:0.68rem;background:var(--success-bg);color:var(--success);padding:0.2rem 0.5rem;border-radius:2px;">Automático</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:1rem;padding:1rem 1.5rem;cursor:pointer;" onclick="openModal()">
+              <div style="width:32px;height:32px;border:1px dashed var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">+</div>
+              <div style="font-size:0.8rem;color:var(--purple-mid);">Pre-asignar guardián adicional</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MENSAJES -->
+      <div id="section-mensajes">
+        <div class="status-banner"><div class="status-dot"></div><span class="status-text" id="mensajesStatus">Mensajes guardados</span></div>
+        <div class="messages-table" id="allTable"><div class="empty-state">Cargando...</div></div>
+      </div>
+
+      <!-- DESTINATARIOS -->
+      <div id="section-destinatarios">
+        <div class="card" id="destCard"><div class="card-header"><h3>Todos los destinatarios</h3></div><div class="empty-state">Cargando...</div></div>
+      </div>
+
+      <!-- PLAN -->
+      <div id="section-plan">
+        <div class="card" style="max-width:480px;">
+          <div class="card-header"><h3>Mi plan actual</h3></div>
+          <div style="padding:2rem;">
+            <div style="font-family:'Cormorant Garamond',serif;font-size:2.5rem;font-weight:300;color:var(--purple);margin-bottom:0.25rem;">Premium</div>
+            <div style="font-size:0.85rem;color:var(--ink-muted);margin-bottom:1.5rem;">Pago único — Mensajes guardados para siempre</div>
+            <div style="background:var(--success-bg);border-radius:3px;padding:1rem;margin-bottom:1.5rem;">
+              <div style="font-size:0.82rem;color:var(--success);font-weight:500;">✓ Sin renovaciones ni suscripciones</div>
+              <div style="font-size:0.78rem;color:#5a8a22;margin-top:0.2rem;">Tu pago cubre la custodia indefinida de todos tus mensajes en Google Drive</div>
+            </div>
+            <ul style="list-style:none;display:flex;flex-direction:column;gap:0.75rem;">
+              <li style="font-size:0.83rem;color:var(--ink-light);display:flex;gap:0.6rem;"><span style="color:var(--gold);">●</span> Mensajes ilimitados en vídeo, audio y texto</li>
+              <li style="font-size:0.83rem;color:var(--ink-light);display:flex;gap:0.6rem;"><span style="color:var(--gold);">●</span> Almacenamiento en Google Drive</li>
+              <li style="font-size:0.83rem;color:var(--ink-light);display:flex;gap:0.6rem;"><span style="color:var(--gold);">●</span> Registro automático en Google Sheets</li>
+              <li style="font-size:0.83rem;color:var(--ink-light);display:flex;gap:0.6rem;"><span style="color:var(--gold);">●</span> Fechas programadas y eventos sin fecha</li>
+              <li style="font-size:0.83rem;color:var(--ink-light);display:flex;gap:0.6rem;"><span style="color:var(--gold);">●</span> Sistema de guardianes</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-header"><h2>Nuevo mensaje</h2><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="form-row"><label class="form-label">Título del mensaje</label><input type="text" class="form-input" id="fTitulo" placeholder="Ej: Para el día de tu boda"></div>
+      <div class="form-row"><label class="form-label">Destinatario</label><input type="text" class="form-input" id="fDestinatario" placeholder="Nombre completo"></div>
+      <div class="form-row"><label class="form-label">Email del destinatario</label><input type="email" class="form-input" id="fEmail" placeholder="email@ejemplo.com"></div>
+      <div class="form-row">
+        <label class="form-label">Tipo de entrega</label>
+        <select class="form-select" id="fTipo" onchange="toggleFecha()">
+          <option value="evento">Evento sin fecha — el guardián lo activa</option>
+          <option value="fecha">Fecha concreta</option>
+          <option value="despedida">Mensaje de despedida — al fallecer</option>
+        </select>
+      </div>
+      <div class="form-row" id="rowEvento"><label class="form-label">Describe el evento</label><input type="text" class="form-input" id="fEvento" placeholder="Ej: El día de tu boda..."></div>
+      <div class="form-row" id="rowFecha" style="display:none;"><label class="form-label">Fecha de entrega</label><input type="date" class="form-input" id="fFecha"></div>
+      <div class="form-row">
+        <label class="form-label" style="margin-bottom:0.75rem;">Formato</label>
+        <div class="format-options">
+          <div class="format-opt selected" onclick="selectFmt(this,'video')"><div class="format-opt-icon">🎥</div><div class="format-opt-label">Vídeo</div></div>
+          <div class="format-opt" onclick="selectFmt(this,'audio')"><div class="format-opt-icon">🎙️</div><div class="format-opt-label">Audio</div></div>
+          <div class="format-opt" onclick="selectFmt(this,'texto')"><div class="format-opt-icon">✍️</div><div class="format-opt-label">Texto</div></div>
+        </div>
+      </div>
+      <div id="recordSection">
+        <label class="form-label">Grabar ahora</label>
+        <div class="record-area">
+          <button class="record-btn" id="recordBtn" onclick="toggleRecord()">
+            <svg viewBox="0 0 24 24" fill="white"><circle cx="12" cy="12" r="6"/></svg>
+          </button>
+          <div class="record-time" id="recordTime">0:00</div>
+          <div class="record-hint" id="recordHint">Pulsa para grabar · Máximo 5 minutos</div>
+          <audio id="audioPlay" controls style="display:none;width:100%;margin-top:1rem;"></audio>
+          <video id="videoPlay" controls style="display:none;width:100%;margin-top:1rem;max-height:180px;"></video>
+        </div>
+        <div style="text-align:center;margin:0.5rem 0;font-size:0.75rem;color:var(--ink-muted);">— o —</div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Subir archivo</label>
+        <div class="upload-area">
+          <input type="file" id="fileInput" accept="video/*,audio/*,image/*,.pdf" onchange="handleFile(event)">
+          <div class="upload-icon">📎</div>
+          <div class="upload-text" id="uploadText">Arrastra o haz clic para seleccionar</div>
+          <div class="upload-sub">MP4, MOV, MP3, WAV, JPG, PNG, PDF · Máx. 500MB</div>
+        </div>
+        <div class="progress-wrap" id="progressWrap" style="display:none;">
+          <div class="progress-label"><span id="progressLabel">Subiendo a Google Drive...</span><span id="progressPct">0%</span></div>
+          <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        </div>
+      </div>
+      <div class="form-row" id="textoSection" style="display:none;"><label class="form-label">Escribe tu mensaje</label><textarea class="form-textarea" id="fTexto" placeholder="Escribe aquí..." style="min-height:160px;"></textarea></div>
+      <div class="form-row"><label class="form-label">Nota para el guardián (opcional)</label><textarea class="form-textarea" id="fNota" placeholder="Instrucciones adicionales..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-save" id="btnGuardar" onclick="guardarMensaje()">Guardar mensaje →</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ── CONFIG ──────────────────────────────────────────────────────
+  const CLIENT_ID = '289308216197-mv51590eus9jotcbnap34m67co5scf12.apps.googleusercontent.com';
+  const FOLDER_ID = '1OxG36b-nPggXzwBgWhXLX0Q3FX4w5yUC';
+  const SHEET_ID  = '1BAxgki1GM6UBv_-JI4MHyqE4vvEaqQgaxKECtQcEMjo';
+  const SCOPES    = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/spreadsheets';
+
+  // ── STATE ───────────────────────────────────────────────────────
+  let tokenClient, accessToken = null;
+  let mensajes = [], selectedFmt = 'video';
+  let mediaRecorder = null, recChunks = [], recBlob = null;
+  let recInterval = null, recSecs = 0, isRecording = false;
+  let selectedFile = null;
+  let user = { name: '', email: '', initials: '?' };
+
+  const COLORS = [
+    { bg: '#E6F1FB', fg: '#185FA5' }, { bg: '#EAF3DE', fg: '#3B6D11' },
+    { bg: '#F5EFE6', fg: '#714f0b' }, { bg: '#EEEDFE', fg: '#3D2D8F' }
+  ];
+
+  // ── AUTH ────────────────────────────────────────────────────────
+  window.onload = () => {
+    tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: CLIENT_ID, scope: SCOPES,
+      callback: async (resp) => {
+        if (resp.error) { showToast('Error de autenticación', 'error'); return; }
+        accessToken = resp.access_token;
+        await fetchUser();
+        document.getElementById('loginScreen').style.display = 'none';
+        loadMensajes();
+      }
+    });
+  };
+
+  function handleLogin() { tokenClient.requestAccessToken(); }
+  function handleLogout() { accessToken = null; mensajes = []; document.getElementById('loginScreen').style.display = 'flex'; }
+
+  async function fetchUser() {
+    const r = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', { headers: { Authorization: `Bearer ${accessToken}` } });
+    const u = await r.json();
+    user = { name: u.name || u.email, email: u.email, initials: (u.name||u.email).slice(0,2).toUpperCase(), picture: u.picture };
+    document.getElementById('userName').textContent = user.name;
+    document.getElementById('topbarSub').textContent = `Bienvenido de vuelta, ${user.name.split(' ')[0]}`;
+    const av = document.getElementById('userAvatar');
+    av.innerHTML = user.picture ? `<img src="${user.picture}" alt="">` : user.initials;
+  }
+
+  // ── SHEETS ──────────────────────────────────────────────────────
+  async function loadMensajes() {
+    try {
+      const r = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/A2:I1000`, { headers: { Authorization: `Bearer ${accessToken}` } });
+      const d = await r.json();
+      const rows = d.values || [];
+      mensajes = rows.map(row => ({
+        id: row[0]||'', fecha: row[1]||'', cliente: row[2]||'',
+        destinatario: row[3]||'', evento: row[4]||'', formato: row[5]||'',
+        enlace: row[6]||'', estado: row[7]||'Pendiente'
+      })).filter(m => m.cliente === user.email || m.cliente === user.name);
+
+      const dests = [...new Set(mensajes.map(m => m.destinatario).filter(Boolean))];
+      document.getElementById('statTotal').textContent = mensajes.length;
+      document.getElementById('statDest').textContent = dests.length;
+      document.getElementById('msgCount').textContent = mensajes.length;
+      document.getElementById('mensajesStatus').textContent = `${mensajes.length} mensajes guardados de forma segura`;
+      const tipos = mensajes.reduce((a,m) => { m.evento?.toLowerCase().includes('despedida') ? a.d++ : m.fecha&&m.fecha!=='-' ? a.f++ : a.e++; return a; }, {f:0,e:0,d:0});
+      document.getElementById('statDesc').textContent = `${tipos.f} con fecha · ${tipos.e} por evento`;
+      document.getElementById('lastCheck').textContent = `Última comprobación: ${new Date().toLocaleDateString('es-ES')}`;
+
+      renderTabla('dashTable', mensajes.slice(0,4));
+      renderTabla('allTable', mensajes);
+      renderDests(dests);
+      renderDashDests(dests);
+    } catch(e) { showToast('Error al cargar mensajes.', 'error'); }
+  }
+
+  async function appendSheet(row) {
+    await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/A1:I1:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ values: [row] })
+    });
+  }
+
+  // ── DRIVE ───────────────────────────────────────────────────────
+  async function getOrCreateFolder(name, parent) {
+    const q = encodeURIComponent(`name='${name}' and mimeType='application/vnd.google-apps.folder' and '${parent}' in parents and trashed=false`);
+    const r = await fetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id)`, { headers: { Authorization: `Bearer ${accessToken}` } });
+    const d = await r.json();
+    if (d.files?.length) return d.files[0].id;
+    const c = await fetch('https://www.googleapis.com/drive/v3/files', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, mimeType: 'application/vnd.google-apps.folder', parents: [parent] })
+    });
+    return (await c.json()).id;
+  }
+
+  async function uploadDrive(file, name, onPct) {
+    const folder = await getOrCreateFolder(user.name || user.email, FOLDER_ID);
+    const meta = { name, parents: [folder] };
+    const form = new FormData();
+    form.append('metadata', new Blob([JSON.stringify(meta)], { type: 'application/json' }));
+    form.append('file', file);
+    return new Promise((res, rej) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,webViewLink');
+      xhr.setRequestHeader('Authorization', `Bearer ${accessToken}`);
+      xhr.upload.onprogress = e => { if (e.lengthComputable) onPct(Math.round(e.loaded/e.total*100)); };
+      xhr.onload = () => xhr.status === 200 ? res(JSON.parse(xhr.responseText).webViewLink || '') : rej(new Error('Upload failed'));
+      xhr.onerror = () => rej(new Error('Network error'));
+      xhr.send(form);
+    });
+  }
+
+  // ── SAVE ────────────────────────────────────────────────────────
+  async function guardarMensaje() {
+    const titulo = document.getElementById('fTitulo').value.trim();
+    const dest   = document.getElementById('fDestinatario').value.trim();
+    const email  = document.getElementById('fEmail').value.trim();
+    const tipo   = document.getElementById('fTipo').value;
+    const evento = document.getElementById('fEvento').value.trim();
+    const fecha  = document.getElementById('fFecha').value;
+    const texto  = document.getElementById('fTexto').value.trim();
+
+    if (!titulo || !dest) { showToast('Completa el título y el destinatario.', 'error'); return; }
+
+    const eventoFinal = tipo==='despedida' ? 'Despedida general — al fallecer' : tipo==='fecha' ? (fecha||'Sin fecha') : (evento||'Evento por definir');
+    const fechaFinal  = tipo==='fecha' ? fecha : '-';
+    const id = 'MSG-' + Date.now();
+    const hoy = new Date().toLocaleDateString('es-ES');
+
+    const btn = document.getElementById('btnGuardar');
+    btn.disabled = true; btn.textContent = 'Guardando...';
+
+    try {
+      let enlace = '-';
+      const archivo = recBlob || selectedFile;
+
+      if (selectedFmt === 'texto') {
+        const blob = new File([new Blob([texto],{type:'text/plain'})], `${titulo}.txt`, {type:'text/plain'});
+        showProg(true); enlace = await uploadDrive(blob, `[${id}] ${titulo}.txt`, updateProg); showProg(false);
+      } else if (archivo) {
+        const ext = archivo.name?.split('.').pop() || (selectedFmt==='audio'?'mp3':'mp4');
+        showProg(true); enlace = await uploadDrive(archivo, `[${id}] ${titulo}.${ext}`, updateProg); showProg(false);
+      } else {
+        showToast('Graba o sube un archivo para continuar.', 'error');
+        btn.disabled=false; btn.textContent='Guardar mensaje →'; return;
+      }
+
+      await appendSheet([id, hoy, user.email||user.name, `${dest} <${email}>`, eventoFinal, selectedFmt.charAt(0).toUpperCase()+selectedFmt.slice(1), enlace, 'Pendiente', '-']);
+      showToast(`✓ "${titulo}" guardado en Drive y registrado.`, 'success');
+      closeModal(); resetModal(); await loadMensajes();
+    } catch(e) { showToast('Error al guardar. Inténtalo de nuevo.', 'error'); showProg(false); }
+
+    btn.disabled=false; btn.textContent='Guardar mensaje →';
+  }
+
+  // ── RECORDING ───────────────────────────────────────────────────
+  async function toggleRecord() {
+    if (!isRecording) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia(selectedFmt==='audio' ? {audio:true} : {video:true,audio:true});
+        mediaRecorder = new MediaRecorder(stream); recChunks = [];
+        mediaRecorder.ondataavailable = e => { if(e.data.size>0) recChunks.push(e.data); };
+        mediaRecorder.onstop = () => {
+          const type = selectedFmt==='audio' ? 'audio/mp3' : 'video/mp4';
+          recBlob = new Blob(recChunks, {type}); recBlob.name = `grabacion.${selectedFmt==='audio'?'mp3':'mp4'}`;
+          const url = URL.createObjectURL(recBlob);
+          if (selectedFmt==='audio') { const a=document.getElementById('audioPlay'); a.src=url; a.style.display='block'; }
+          else { const v=document.getElementById('videoPlay'); v.src=url; v.style.display='block'; }
+          stream.getTracks().forEach(t=>t.stop());
+        };
+        mediaRecorder.start(); isRecording=true; recSecs=0;
+        document.getElementById('recordBtn').classList.add('recording');
+        document.getElementById('recordHint').textContent='Grabando... pulsa para parar';
+        recInterval = setInterval(() => { recSecs++; const m=Math.floor(recSecs/60),s=recSecs%60; document.getElementById('recordTime').textContent=`${m}:${s.toString().padStart(2,'0')}`; if(recSecs>=300) toggleRecord(); }, 1000);
+      } catch(e) { showToast('No se pudo acceder al micrófono/cámara.','error'); }
+    } else {
+      mediaRecorder.stop(); isRecording=false; clearInterval(recInterval);
+      document.getElementById('recordBtn').classList.remove('recording');
+      document.getElementById('recordHint').textContent='Grabación completada ✓';
+    }
+  }
+
+  function handleFile(e) {
+    const f = e.target.files[0]; if(!f) return;
+    selectedFile=f; recBlob=null;
+    document.getElementById('uploadText').textContent=`✓ ${f.name} (${(f.size/1024/1024).toFixed(1)} MB)`;
+  }
+
+  // ── UI HELPERS ──────────────────────────────────────────────────
+  function showProg(show) { document.getElementById('progressWrap').style.display=show?'block':'none'; if(!show){document.getElementById('progressFill').style.width='0%';document.getElementById('progressPct').textContent='0%';} }
+  function updateProg(p) { document.getElementById('progressFill').style.width=p+'%'; document.getElementById('progressPct').textContent=p+'%'; document.getElementById('progressLabel').textContent=p<100?'Subiendo a Google Drive...':'Procesando...'; }
+
+  function selectFmt(el, fmt) {
+    document.querySelectorAll('.format-opt').forEach(o=>o.classList.remove('selected')); el.classList.add('selected'); selectedFmt=fmt;
+    document.getElementById('recordSection').style.display=fmt==='texto'?'none':'block';
+    document.getElementById('textoSection').style.display=fmt==='texto'?'block':'none';
+  }
+
+  function toggleFecha() {
+    const t=document.getElementById('fTipo').value;
+    document.getElementById('rowEvento').style.display=t==='evento'?'block':'none';
+    document.getElementById('rowFecha').style.display=t==='fecha'?'block':'none';
+  }
+
+  function openModal() { document.getElementById('modal').classList.add('open'); }
+  function closeModal() { document.getElementById('modal').classList.remove('open'); }
+  function closeModalOutside(e) { if(e.target===document.getElementById('modal')) closeModal(); }
+
+  function resetModal() {
+    ['fTitulo','fDestinatario','fEmail','fEvento','fNota','fTexto'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('fFecha').value=''; document.getElementById('uploadText').textContent='Arrastra o haz clic para seleccionar';
+    document.getElementById('fileInput').value=''; document.getElementById('audioPlay').style.display='none'; document.getElementById('videoPlay').style.display='none';
+    document.getElementById('recordTime').textContent='0:00'; document.getElementById('recordHint').textContent='Pulsa para grabar · Máximo 5 minutos';
+    selectedFile=null; recBlob=null; recChunks=[]; if(isRecording&&mediaRecorder){mediaRecorder.stop();isRecording=false;clearInterval(recInterval);}
+    showProg(false);
+  }
+
+  function showToast(msg, type='success') {
+    const t=document.getElementById('toast'); t.textContent=msg; t.className=`toast ${type} show`;
+    setTimeout(()=>t.className='toast',4000);
+  }
+
+  const SECTION_TITLES = {
+    dashboard: ['Inicio', ()=>`Bienvenido de vuelta, ${user.name.split(' ')[0]}`],
+    mensajes:  ['Mis mensajes', ()=>`${mensajes.length} mensajes guardados`],
+    destinatarios: ['Destinatarios', ()=>'Personas que recibirán tus mensajes'],
+    plan: ['Mi plan', ()=>'Premium — Pago único para siempre']
+  };
+
+  function showSection(name, el) {
+    document.querySelectorAll('.section-panels > div').forEach(d=>d.classList.remove('active'));
+    document.getElementById('section-'+name).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
+    if(el) el.classList.add('active');
+    if(SECTION_TITLES[name]) { document.getElementById('topbarTitle').textContent=SECTION_TITLES[name][0]; document.getElementById('topbarSub').textContent=SECTION_TITLES[name][1](); }
+  }
+
+  // ── RENDER ──────────────────────────────────────────────────────
+  function fmtClass(f) { const fl=f.toLowerCase(); return fl.includes('vid')?'format-video':fl==='audio'?'format-audio':'format-text'; }
+  function stClass(m) { return m.evento?.toLowerCase().includes('despedida')?'status-despedida':m.fecha&&m.fecha!=='-'?'status-programado':'status-evento'; }
+  function stLabel(m) { return m.evento?.toLowerCase().includes('despedida')?'Despedida':m.fecha&&m.fecha!=='-'?'Programado':'Por evento'; }
+
+  function renderTabla(id, lista) {
+    const c = document.getElementById(id);
+    if (!lista.length) { c.innerHTML=`<div class="table-head"><span class="th">Mensaje</span><span class="th">Para</span><span class="th">Evento</span><span class="th">Formato</span><span class="th">Estado</span><span class="th"></span></div><div class="empty-state">Aún no tienes mensajes. ¡Crea tu primero!</div>`; return; }
+    let h=`<div class="table-head"><span class="th">Mensaje</span><span class="th">Para</span><span class="th">Evento</span><span class="th">Formato</span><span class="th">Estado</span><span class="th"></span></div>`;
+    lista.forEach(m => {
+      const nombre = m.destinatario?.split('<')[0].trim()||'-';
+      h+=`<div class="table-row">
+        <div><div class="msg-title">${m.evento||'Mensaje'}</div><div class="msg-sub">${m.fecha!=='-'?m.fecha:m.id}</div></div>
+        <div class="td">${nombre}</div>
+        <div class="td">${m.fecha!=='-'?m.fecha:(m.evento||'-')}</div>
+        <div><span class="format-badge ${fmtClass(m.formato)}">${m.formato}</span></div>
+        <div><span class="status-badge ${stClass(m)}">${stLabel(m)}</span></div>
+        <div class="row-actions">${m.enlace&&m.enlace!=='-'?`<a href="${m.enlace}" target="_blank" class="action-btn" title="Ver en Drive"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 2H3a1 1 0 00-1 1v10a1 1 0 001 1h10a1 1 0 001-1V9M9 1h6v6M8 8l6-6"/></svg></a>`:''}</div>
+      </div>`;
+    });
+    c.innerHTML=h;
+  }
+
+  function renderDests(dests) {
+    const card = document.getElementById('destCard');
+    if(!dests.length){card.innerHTML=`<div class="card-header"><h3>Todos los destinatarios</h3></div><div class="empty-state">Añade mensajes para ver los destinatarios aquí.</div>`;return;}
+    let h=`<div class="card-header"><h3>Todos los destinatarios</h3></div>`;
+    dests.forEach((d,i)=>{
+      const c=COLORS[i%COLORS.length], init=d.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+      const count=mensajes.filter(m=>m.destinatario?.includes(d.split('<')[0].trim())).length;
+      const emailMatch=d.match(/<(.+)>/);
+      h+=`<div class="dest-item"><div class="dest-avatar" style="background:${c.bg};color:${c.fg};">${init}</div><div><div class="dest-name">${d.split('<')[0].trim()}</div><div class="dest-sub">${emailMatch?emailMatch[1]:''}</div></div><div class="dest-count">${count} mensaje${count!==1?'s':''}</div></div>`;
+    });
+    card.innerHTML=h;
+  }
+
+  function renderDashDests(dests) {
+    const el=document.getElementById('dashDests');
+    if(!dests.length){el.innerHTML=`<div class="empty-state" style="padding:1.5rem;">Sin destinatarios aún</div>`;return;}
+    let h='';
+    dests.slice(0,4).forEach((d,i)=>{
+      const c=COLORS[i%COLORS.length], init=d.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+      const count=mensajes.filter(m=>m.destinatario?.includes(d.split('<')[0].trim())).length;
+      h+=`<div class="dest-item"><div class="dest-avatar" style="background:${c.bg};color:${c.fg};">${init}</div><div><div class="dest-name">${d.split('<')[0].trim()}</div><div class="dest-sub">${count} mensaje${count!==1?'s':''}</div></div></div>`;
+    });
+    el.innerHTML=h;
+  }
+</script>
+</body>
+</html>
