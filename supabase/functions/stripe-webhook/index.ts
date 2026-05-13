@@ -21,16 +21,27 @@ Deno.serve(async (req) => {
     return new Response(`Webhook error: ${err.message}`, { status: 400 });
   }
 
+  const sb = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+  );
+
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session;
-    const userId  = session.metadata?.user_id;
-
+    const userId = session.metadata?.user_id;
     if (userId) {
-      const sb = createClient(
-        Deno.env.get('SUPABASE_URL')!,
-        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
-      );
       await sb.from('profiles').update({ plan: 'premium' }).eq('id', userId);
+    }
+  }
+
+  // Suscripción cancelada o pago fallido → volver a básico
+  if (event.type === 'customer.subscription.deleted') {
+    const sub = event.data.object as Stripe.Subscription;
+    const customerId = sub.customer as string;
+    const customer = await stripe.customers.retrieve(customerId) as Stripe.Customer;
+    const userId = customer.metadata?.user_id;
+    if (userId) {
+      await sb.from('profiles').update({ plan: 'basico' }).eq('id', userId);
     }
   }
 

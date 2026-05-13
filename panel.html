@@ -259,22 +259,49 @@
 
       <!-- PLAN -->
       <div id="section-plan">
-        <div class="card" style="max-width:480px;">
+        <div id="freemiumBanner" style="display:none;background:#3D2D8F;border-radius:4px;padding:1.5rem 2rem;margin-bottom:1.5rem;color:#fff;">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:300;margin-bottom:0.4rem;">Tu periodo gratuito ha terminado</div>
+          <div style="font-size:0.82rem;color:rgba(255,255,255,0.7);margin-bottom:1.25rem;">Tu primer mensaje permanece accesible. Activa un plan para desbloquear el resto.</div>
+          <button onclick="showSection('plan',document.querySelector('[onclick*=plan]'))" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;padding:0.5rem 1.25rem;border-radius:3px;font-size:0.82rem;cursor:pointer;">Ver planes →</button>
+        </div>
+        <div id="freemiumAviso" style="display:none;background:var(--gold-light);border:1px solid var(--gold);border-radius:4px;padding:1rem 1.5rem;margin-bottom:1.5rem;font-size:0.83rem;color:#7a5c2e;"></div>
+
+        <div class="card" style="max-width:640px;margin-bottom:1.5rem;">
           <div class="card-header"><h3>Mi plan actual</h3></div>
           <div style="padding:2rem;">
             <div id="planNombre" style="font-family:'Cormorant Garamond',serif;font-size:2.5rem;font-weight:300;color:var(--purple);margin-bottom:0.25rem;">Básico</div>
             <div id="planDescripcion" style="font-size:0.85rem;color:var(--ink-muted);margin-bottom:1.5rem;">Plan gratuito</div>
-            <div style="background:var(--success-bg);border-radius:3px;padding:1rem;margin-bottom:1.5rem;">
+            <div style="background:var(--success-bg);border-radius:3px;padding:1rem;">
               <div id="planBadge" style="font-size:0.82rem;color:var(--success);font-weight:500;"></div>
               <div id="planSubtexto" style="font-size:0.78rem;color:#5a8a22;margin-top:0.2rem;"></div>
             </div>
-            <ul style="list-style:none;display:flex;flex-direction:column;gap:0.75rem;">
-              <li style="font-size:0.83rem;color:var(--ink-light);display:flex;gap:0.6rem;"><span style="color:var(--gold);">●</span> Mensajes en vídeo, audio y texto</li>
-              <li style="font-size:0.83rem;color:var(--ink-light);display:flex;gap:0.6rem;"><span style="color:var(--gold);">●</span> Almacenamiento seguro en la nube</li>
-              <li style="font-size:0.83rem;color:var(--ink-light);display:flex;gap:0.6rem;"><span style="color:var(--gold);">●</span> Fechas programadas y eventos sin fecha</li>
-              <li style="font-size:0.83rem;color:var(--ink-light);display:flex;gap:0.6rem;"><span style="color:var(--gold);">●</span> Sistema de guardianes</li>
-            </ul>
           </div>
+        </div>
+
+        <div id="planesGrid" style="max-width:640px;">
+          <div style="font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:1rem;">Elige tu plan</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
+            <div id="planCardMensual" onclick="seleccionarPlan('mensual')" style="border:1.5px solid var(--border);border-radius:4px;padding:1.5rem;cursor:pointer;transition:border-color 0.15s;">
+              <div style="font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:0.5rem;">Mensual</div>
+              <div style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;color:var(--purple);">1€</div>
+              <div style="font-size:0.72rem;color:var(--ink-muted);margin-bottom:1rem;">al mes</div>
+              <div style="font-size:0.75rem;color:var(--ink-light);">Cancela cuando quieras</div>
+            </div>
+            <div id="planCardAnual" onclick="seleccionarPlan('anual')" style="border:2px solid var(--purple);border-radius:4px;padding:1.5rem;cursor:pointer;transition:border-color 0.15s;position:relative;">
+              <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--purple);color:#fff;font-size:0.65rem;padding:0.2rem 0.6rem;border-radius:20px;white-space:nowrap;">MÁS POPULAR</div>
+              <div style="font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:0.5rem;">Anual</div>
+              <div style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;color:var(--purple);">4,99€</div>
+              <div style="font-size:0.72rem;color:var(--ink-muted);margin-bottom:1rem;">al año <span style="color:var(--success);">(-58%)</span></div>
+              <div style="font-size:0.75rem;color:var(--ink-light);">Cancela cuando quieras</div>
+            </div>
+            <div id="planCardUnico" onclick="seleccionarPlan('unico')" style="border:1.5px solid var(--border);border-radius:4px;padding:1.5rem;cursor:pointer;transition:border-color 0.15s;">
+              <div style="font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:0.5rem;">De por vida</div>
+              <div style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;color:var(--purple);">59€</div>
+              <div style="font-size:0.72rem;color:var(--ink-muted);margin-bottom:1rem;">pago único</div>
+              <div style="font-size:0.75rem;color:var(--ink-light);">Sin más pagos nunca</div>
+            </div>
+          </div>
+          <button id="upgradeBtn" class="btn-primary" onclick="upgradePremium()" style="display:none;margin-top:1.25rem;width:100%;justify-content:center;">Activar plan seleccionado</button>
         </div>
       </div>
 
@@ -385,21 +412,92 @@
     loadProfile(u.id);
   }
 
+  const STRIPE_PRICES = {
+    mensual: 'price_MENSUAL',
+    anual:   'price_ANUAL',
+    unico:   'price_1TWfWhHlTrPIiyXFwjT4IKJw',
+  };
+
+  let planSeleccionado = 'anual';
+  let perfilData = null;
+
   async function loadProfile(userId) {
-    const { data } = await sb.from('profiles').select('plan').eq('id', userId).single();
+    const { data } = await sb.from('profiles').select('plan, created_at').eq('id', userId).single();
+    perfilData = data;
     const plan = data?.plan || 'basico';
     const esPremium = plan === 'premium';
+
     document.getElementById('userPlanLabel').textContent = esPremium ? 'Plan Premium' : 'Plan Básico';
     document.getElementById('planNombre').textContent = esPremium ? 'Premium' : 'Básico';
     document.getElementById('planDescripcion').textContent = esPremium
-      ? 'Pago único — Mensajes guardados para siempre'
-      : 'Plan gratuito';
+      ? 'Acceso completo a todos tus mensajes'
+      : 'Plan gratuito · 3 meses de prueba';
     document.getElementById('planBadge').textContent = esPremium
-      ? '✓ Sin renovaciones ni suscripciones'
-      : 'Actualiza a Premium para acceso completo';
+      ? '✓ Todos tus mensajes están activos y seguros'
+      : '✓ Primer mensaje siempre gratuito';
     document.getElementById('planSubtexto').textContent = esPremium
-      ? 'Tu pago cubre la custodia indefinida de todos tus mensajes'
-      : '';
+      ? '' : 'Los demás mensajes se bloquean a los 3 meses sin plan activo';
+
+    const planesGrid = document.getElementById('planesGrid');
+    if (esPremium) {
+      if (planesGrid) planesGrid.style.display = 'none';
+    } else {
+      if (planesGrid) planesGrid.style.display = 'block';
+      seleccionarPlan('anual');
+    }
+
+    if (!esPremium && data?.created_at) {
+      const diasDesdeRegistro = Math.floor((Date.now() - new Date(data.created_at)) / 86400000);
+      const diasRestantes = 90 - diasDesdeRegistro;
+      const banner = document.getElementById('freemiumBanner');
+      const aviso = document.getElementById('freemiumAviso');
+      if (diasRestantes <= 0) {
+        if (banner) banner.style.display = 'block';
+      } else if (diasRestantes <= 15) {
+        if (aviso) { aviso.style.display = 'block'; aviso.textContent = `Te quedan ${diasRestantes} días de acceso completo gratuito. Activa un plan para no perder el acceso a tus mensajes.`; }
+      }
+    }
+  }
+
+  function seleccionarPlan(tipo) {
+    planSeleccionado = tipo;
+    ['mensual','anual','unico'].forEach(t => {
+      const el = document.getElementById('planCard' + t.charAt(0).toUpperCase() + t.slice(1));
+      if (el) el.style.border = t === tipo ? '2px solid var(--purple)' : '1.5px solid var(--border)';
+    });
+    const btn = document.getElementById('upgradeBtn');
+    if (btn) {
+      const labels = { mensual: 'Activar plan mensual — 1€/mes', anual: 'Activar plan anual — 4,99€/año', unico: 'Activar plan de por vida — 59€' };
+      btn.textContent = labels[tipo];
+      btn.style.display = 'flex';
+    }
+  }
+
+  async function upgradePremium() {
+    const priceId = STRIPE_PRICES[planSeleccionado];
+    if (!priceId || priceId === 'price_MENSUAL' || priceId === 'price_ANUAL') {
+      showToast('Este plan estará disponible pronto', 'info'); return;
+    }
+    const btn = document.getElementById('upgradeBtn');
+    if (btn) { btn.textContent = 'Redirigiendo...'; btn.disabled = true; }
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/stripe-checkout`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+          'apikey': SUPABASE_ANON_KEY,
+        },
+        body: JSON.stringify({ price_id: priceId }),
+      });
+      const { url, error } = await res.json();
+      if (error) throw new Error(error);
+      window.location.href = url;
+    } catch (err) {
+      showToast('Error al iniciar el pago: ' + err.message, 'error');
+      seleccionarPlan(planSeleccionado);
+    }
   }
 
   async function handleLogin() {
@@ -463,10 +561,33 @@
   function fmtLabel(f) { return f === 'video' ? '🎥 Vídeo' : f === 'audio' ? '🎙️ Audio' : '✍️ Texto'; }
   function tipoLabel(t) { return t === 'evento' ? 'Evento' : t === 'fecha' ? 'Fecha' : 'Despedida'; }
 
+  function estaDesbloqueado(idx) {
+    if (!perfilData) return true;
+    if (perfilData.plan === 'premium') return true;
+    if (idx === 0) return true; // primer mensaje siempre libre
+    const dias = Math.floor((Date.now() - new Date(perfilData.created_at)) / 86400000);
+    return dias < 90;
+  }
+
   function renderMensajes() {
     const tbody = document.getElementById('msgTableBody');
-    tbody.innerHTML = mensajes.length ? mensajes.map(m => `
-      <tr>
+    // Ordenar por created_at asc para que el primero sea el más antiguo (el gratuito)
+    const ordenados = [...mensajes].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    const idxLibre = new Set(ordenados.slice(0, 1).map(m => m.id));
+
+    tbody.innerHTML = mensajes.length ? mensajes.map(m => {
+      const libre = perfilData?.plan === 'premium' || idxLibre.has(m.id) || estaDesbloqueado(ordenados.findIndex(x => x.id === m.id));
+      if (!libre) {
+        return `<tr style="opacity:0.5;">
+          <td><span style="margin-right:0.4rem;">🔒</span>${m.titulo}</td>
+          <td>${m.destinatario}</td>
+          <td>${tipoLabel(m.tipo_entrega)}</td>
+          <td>${fmtLabel(m.formato)}</td>
+          <td><span class="badge badge-pendiente">Bloqueado</span></td>
+          <td><button class="link-btn" style="color:var(--purple);" onclick="showSection('plan',null)">Desbloquear</button></td>
+        </tr>`;
+      }
+      return `<tr>
         <td>${m.titulo}</td>
         <td>${m.destinatario}</td>
         <td>${tipoLabel(m.tipo_entrega)}</td>
@@ -477,7 +598,8 @@
           ${m.estado === 'pendiente' && m.email_destinatario ? `<button class="link-btn" onclick="entregarMensaje('${m.id}')">Entregar</button>` : ''}
           <button class="link-btn" onclick="eliminarMensaje('${m.id}')">Eliminar</button>
         </td>
-      </tr>`).join('') : '<tr><td colspan="6" class="empty-state">Sin mensajes aún</td></tr>';
+      </tr>`;
+    }).join('') : '<tr><td colspan="6" class="empty-state">Sin mensajes aún</td></tr>';
   }
 
   function renderDests(msgs) {

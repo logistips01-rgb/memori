@@ -27,13 +27,22 @@ Deno.serve(async (req) => {
     const { data: { user }, error } = await sb.auth.getUser();
     if (error || !user) throw new Error('Usuario no autenticado');
 
+    const body = req.headers.get('content-type')?.includes('application/json')
+      ? await req.json() : {};
+    const priceId = body.price_id || Deno.env.get('STRIPE_PRICE_ID')!;
+
+    // Determinar modo según el price (suscripciones vs pago único)
+    const priceInfo = await stripe.prices.retrieve(priceId);
+    const mode = priceInfo.recurring ? 'subscription' : 'payment';
+
     const session = await stripe.checkout.sessions.create({
-      mode: 'payment',
-      line_items: [{ price: Deno.env.get('STRIPE_PRICE_ID')!, quantity: 1 }],
+      mode,
+      line_items: [{ price: priceId, quantity: 1 }],
       success_url: 'https://memori.mlorente.es/panel.html?pago=ok',
       cancel_url:  'https://memori.mlorente.es/panel.html?pago=cancelado',
       customer_email: user.email,
       metadata: { user_id: user.id },
+      subscription_data: mode === 'subscription' ? { metadata: { user_id: user.id } } : undefined,
     });
 
     return new Response(JSON.stringify({ url: session.url }), {
