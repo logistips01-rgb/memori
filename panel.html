@@ -317,6 +317,7 @@
           <div id="recordTime">0:00</div>
           <div id="recordHint">Pulsa para grabar · Máximo 5 minutos</div>
         </div>
+        <div style="margin-top:0.75rem;display:none;" id="videoPreview"><video id="videoPreviewEl" autoplay muted playsinline style="width:100%;border-radius:3px;background:#000;transform:scaleX(-1);"></video></div>
         <div style="margin-top:0.75rem;display:none;" id="videoPlay"><video controls style="width:100%;border-radius:3px;"></video></div>
         <div style="margin-top:0.75rem;display:none;" id="audioPlay"><audio controls style="width:100%;"></audio></div>
       </div>
@@ -570,8 +571,15 @@
       return;
     }
     try {
-      const constraints = selectedFmt === 'video' ? { video: true, audio: true } : { audio: true };
+      const constraints = selectedFmt === 'video' ? { video: { facingMode: 'user' }, audio: true } : { audio: true };
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
+
+      if (selectedFmt === 'video') {
+        const preview = document.getElementById('videoPreview');
+        preview.style.display = 'block';
+        document.getElementById('videoPreviewEl').srcObject = stream;
+      }
+
       mediaRecorder = new MediaRecorder(stream);
       recChunks = [];
       mediaRecorder.ondataavailable = e => recChunks.push(e.data);
@@ -580,6 +588,8 @@
         recBlob = new Blob(recChunks, { type: mime });
         const url = URL.createObjectURL(recBlob);
         if (selectedFmt === 'video') {
+          document.getElementById('videoPreview').style.display = 'none';
+          document.getElementById('videoPreviewEl').srcObject = null;
           const vp = document.getElementById('videoPlay');
           vp.style.display = 'block';
           vp.querySelector('video').src = url;
@@ -668,7 +678,7 @@
   function resetModal() {
     ['fTitulo','fDestinatario','fEmail','fEvento','fNota','fTexto'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('fFecha').value=''; document.getElementById('uploadText').textContent='Arrastra o haz clic para seleccionar';
-    document.getElementById('fileInput').value=''; document.getElementById('audioPlay').style.display='none'; document.getElementById('videoPlay').style.display='none';
+    document.getElementById('fileInput').value=''; document.getElementById('audioPlay').style.display='none'; document.getElementById('videoPlay').style.display='none'; document.getElementById('videoPreview').style.display='none'; document.getElementById('videoPreviewEl').srcObject=null;
     document.getElementById('recordTime').textContent='0:00'; document.getElementById('recordHint').textContent='Pulsa para grabar · Máximo 5 minutos';
     selectedFile=null; recBlob=null; recChunks=[]; if(isRecording&&mediaRecorder){mediaRecorder.stop();isRecording=false;clearInterval(recInterval);}
   }
