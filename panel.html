@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Memori — Mi panel</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="https://accounts.google.com/gsi/client"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -178,6 +178,26 @@
 
   .section-panels > div { display: none; }
   .section-panels > div.active { display: block; }
+
+  /* PLAN UPGRADE */
+  .upgrade-banner { background: linear-gradient(135deg, var(--purple) 0%, #5a4bc4 100%); border-radius: 4px; padding: 1.5rem 2rem; color: var(--white); display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; }
+  .upgrade-banner h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 300; margin-bottom: 0.2rem; }
+  .upgrade-banner p { font-size: 0.78rem; color: rgba(255,255,255,0.7); }
+  .btn-upgrade { background: var(--gold); color: var(--ink); padding: 0.6rem 1.4rem; border: none; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; font-weight: 500; cursor: pointer; white-space: nowrap; margin-left: 1.5rem; transition: background 0.2s; }
+  .btn-upgrade:hover { background: #b89660; }
+  .plan-options { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem; }
+  .plan-card { background: var(--white); border: 1px solid var(--border); border-radius: 4px; padding: 1.5rem; }
+  .plan-card.featured { border-color: var(--purple); }
+  .plan-card h4 { font-size: 0.88rem; font-weight: 500; color: var(--ink); margin-bottom: 0.25rem; }
+  .plan-card .plan-price { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 300; color: var(--purple); margin: 0.5rem 0; }
+  .plan-card .plan-desc { font-size: 0.75rem; color: var(--ink-muted); margin-bottom: 1rem; line-height: 1.6; }
+  .plan-card ul { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.25rem; }
+  .plan-card li { font-size: 0.78rem; color: var(--ink-light); display: flex; gap: 0.5rem; }
+  .plan-card li::before { content: '●'; color: var(--gold); flex-shrink: 0; }
+  .btn-plan { width: 100%; padding: 0.65rem; background: var(--purple); color: var(--white); border: none; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 500; cursor: pointer; transition: background 0.2s; }
+  .btn-plan:hover { background: #2d1f6e; }
+  .btn-plan.secondary { background: none; border: 1px solid var(--border); color: var(--ink-light); }
+  .btn-plan.secondary:hover { border-color: var(--purple-mid); color: var(--purple); background: var(--purple-light); }
 </style>
 </head>
 <body>
@@ -256,8 +276,8 @@
         <div class="stats-grid">
           <div class="stat-card"><div class="stat-label">Mensajes guardados</div><div class="stat-value" id="statTotal">0</div><div class="stat-desc" id="statDesc">Cargando...</div></div>
           <div class="stat-card"><div class="stat-label">Destinatarios</div><div class="stat-value" id="statDest">0</div><div class="stat-desc">Personas que recibirán mensajes</div></div>
-          <div class="stat-card"><div class="stat-label">Drive conectado</div><div class="stat-value" style="font-size:1.8rem;">✓</div><div class="stat-desc">Google Drive activo</div></div>
-          <div class="stat-card"><div class="stat-label">Plan activo</div><div class="stat-value" style="font-size:1.4rem;padding-top:0.4rem;">Premium</div><div class="stat-desc">Pago único — para siempre</div></div>
+          <div class="stat-card"><div class="stat-label">Almacenamiento</div><div class="stat-value" style="font-size:1.8rem;">✓</div><div class="stat-desc">Custodia segura activa</div></div>
+          <div class="stat-card" id="statCard4"><div class="stat-label">Plan activo</div><div class="stat-value" style="font-size:1.4rem;padding-top:0.4rem;">—</div><div class="stat-desc">Cargando...</div></div>
         </div>
         <div class="section-header"><h2>Mensajes recientes</h2><a onclick="showSection('mensajes',null)">Ver todos →</a></div>
         <div class="messages-table" id="dashTable"><div class="empty-state">Cargando...</div></div>
@@ -291,22 +311,58 @@
 
       <!-- PLAN -->
       <div id="section-plan">
-        <div class="card" style="max-width:480px;">
-          <div class="card-header"><h3>Mi plan actual</h3></div>
-          <div style="padding:2rem;">
-            <div style="font-family:'Cormorant Garamond',serif;font-size:2.5rem;font-weight:300;color:var(--purple);margin-bottom:0.25rem;">Premium</div>
-            <div style="font-size:0.85rem;color:var(--ink-muted);margin-bottom:1.5rem;">Pago único — Mensajes guardados para siempre</div>
-            <div style="background:var(--success-bg);border-radius:3px;padding:1rem;margin-bottom:1.5rem;">
-              <div style="font-size:0.82rem;color:var(--success);font-weight:500;">✓ Sin renovaciones ni suscripciones</div>
-              <div style="font-size:0.78rem;color:#5a8a22;margin-top:0.2rem;">Tu pago cubre la custodia indefinida de todos tus mensajes en Google Drive</div>
+        <div id="plan-basico-view" style="display:none;">
+          <div class="upgrade-banner">
+            <div>
+              <h3>Activa tu plan Premium</h3>
+              <p>Mensajes ilimitados, vídeo hasta 5 min, entrega programada y guardianes</p>
             </div>
-            <ul style="list-style:none;display:flex;flex-direction:column;gap:0.75rem;">
-              <li style="font-size:0.83rem;color:var(--ink-light);display:flex;gap:0.6rem;"><span style="color:var(--gold);">●</span> Mensajes ilimitados en vídeo, audio y texto</li>
-              <li style="font-size:0.83rem;color:var(--ink-light);display:flex;gap:0.6rem;"><span style="color:var(--gold);">●</span> Almacenamiento en Google Drive</li>
-              <li style="font-size:0.83rem;color:var(--ink-light);display:flex;gap:0.6rem;"><span style="color:var(--gold);">●</span> Registro automático en Google Sheets</li>
-              <li style="font-size:0.83rem;color:var(--ink-light);display:flex;gap:0.6rem;"><span style="color:var(--gold);">●</span> Fechas programadas y eventos sin fecha</li>
-              <li style="font-size:0.83rem;color:var(--ink-light);display:flex;gap:0.6rem;"><span style="color:var(--gold);">●</span> Sistema de guardianes</li>
-            </ul>
+          </div>
+          <div class="plan-options">
+            <div class="plan-card featured">
+              <h4>Premium Anticipado</h4>
+              <div class="plan-price">59€</div>
+              <div class="plan-desc">Pago único ahora. Custodia indefinida.</div>
+              <ul>
+                <li>Mensajes ilimitados (vídeo, audio, texto)</li>
+                <li>Vídeos hasta 5 minutos</li>
+                <li>Entrega por fecha o evento</li>
+                <li>Sistema de guardianes</li>
+                <li>Resumen PDF descargable</li>
+              </ul>
+              <button class="btn-plan" onclick="checkout('premium_anticipado')">Activar por 59€ →</button>
+            </div>
+            <div class="plan-card">
+              <h4>Premium Póstumo</h4>
+              <div class="plan-price">99€</div>
+              <div class="plan-desc">Lo paga tu familia al fallecer, a través de tu funeraria.</div>
+              <ul>
+                <li>Todo lo de Premium Anticipado</li>
+                <li>Sin coste ahora</li>
+                <li>Tu familia lo gestiona con la funeraria</li>
+                <li>Mensajes liberados al fallecer</li>
+              </ul>
+              <button class="btn-plan secondary" onclick="checkout('premium_postumo')">Elegir póstumo →</button>
+            </div>
+          </div>
+        </div>
+        <div id="plan-premium-view" style="display:none;">
+          <div class="card" style="max-width:480px;">
+            <div class="card-header"><h3>Mi plan actual</h3></div>
+            <div style="padding:2rem;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:2.5rem;font-weight:300;color:var(--purple);margin-bottom:0.25rem;" id="planName">Premium</div>
+              <div style="font-size:0.85rem;color:var(--ink-muted);margin-bottom:1.5rem;" id="planSub">Pago único — Mensajes guardados para siempre</div>
+              <div style="background:var(--success-bg);border-radius:3px;padding:1rem;margin-bottom:1.5rem;">
+                <div style="font-size:0.82rem;color:var(--success);font-weight:500;">✓ Plan activo</div>
+                <div style="font-size:0.78rem;color:#5a8a22;margin-top:0.2rem;">Tus mensajes están en custodia segura indefinida</div>
+              </div>
+              <ul style="list-style:none;display:flex;flex-direction:column;gap:0.75rem;">
+                <li style="font-size:0.83rem;color:var(--ink-light);display:flex;gap:0.6rem;"><span style="color:var(--gold);">●</span> Mensajes ilimitados en vídeo, audio y texto</li>
+                <li style="font-size:0.83rem;color:var(--ink-light);display:flex;gap:0.6rem;"><span style="color:var(--gold);">●</span> Almacenamiento seguro en Memori</li>
+                <li style="font-size:0.83rem;color:var(--ink-light);display:flex;gap:0.6rem;"><span style="color:var(--gold);">●</span> Entrega automática por fecha y por evento</li>
+                <li style="font-size:0.83rem;color:var(--ink-light);display:flex;gap:0.6rem;"><span style="color:var(--gold);">●</span> Sistema de guardianes</li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
@@ -380,19 +436,20 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  // ── CONFIG ──────────────────────────────────────────────────────
-  const CLIENT_ID = '289308216197-mv51590eus9jotcbnap34m67co5scf12.apps.googleusercontent.com';
-  const FOLDER_ID = '1OxG36b-nPggXzwBgWhXLX0Q3FX4w5yUC';
-  const SHEET_ID  = '1BAxgki1GM6UBv_-JI4MHyqE4vvEaqQgaxKECtQcEMjo';
-  const SCOPES    = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/spreadsheets';
+  // ── CONFIG — Reemplaza con los valores de tu proyecto Supabase ──
+  const SUPABASE_URL  = 'https://YOUR_PROJECT.supabase.co';
+  const SUPABASE_ANON = 'YOUR_ANON_KEY';
+  const FUNCTIONS_URL = SUPABASE_URL + '/functions/v1';
 
-  // ── STATE ───────────────────────────────────────────────────────
-  let tokenClient, accessToken = null;
+  // ── INIT ────────────────────────────────────────────────────────
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+  let currentUser = null, currentProfile = null;
   let mensajes = [], selectedFmt = 'video';
   let mediaRecorder = null, recChunks = [], recBlob = null;
   let recInterval = null, recSecs = 0, isRecording = false;
   let selectedFile = null;
-  let user = { name: '', email: '', initials: '?' };
 
   const COLORS = [
     { bg: '#E6F1FB', fg: '#185FA5' }, { bg: '#EAF3DE', fg: '#3B6D11' },
@@ -400,103 +457,107 @@
   ];
 
   // ── AUTH ────────────────────────────────────────────────────────
-  function initGoogle() {
-    if (typeof google === 'undefined' || !google.accounts) {
-      setTimeout(initGoogle, 300);
-      return;
+  window.addEventListener('load', async () => {
+    // Comprobar si venimos de un pago
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('payment') === 'success') {
+      showToast('✓ Pago confirmado. Tu plan ya está activo.', 'success');
+      history.replaceState({}, '', window.location.pathname);
     }
-    tokenClient = google.accounts.oauth2.initTokenClient({
-      client_id: CLIENT_ID, scope: SCOPES,
-      callback: async (resp) => {
-        if (resp.error) { showToast('Error de autenticación', 'error'); return; }
-        accessToken = resp.access_token;
-        await fetchUser();
+
+    sb.auth.onAuthStateChange(async (event, session) => {
+      if (session) {
+        currentUser = session.user;
+        await loadUserProfile();
         document.getElementById('loginScreen').style.display = 'none';
         loadMensajes();
+      } else {
+        currentUser = null;
+        currentProfile = null;
+        document.getElementById('loginScreen').style.display = 'flex';
       }
     });
+  });
+
+  async function handleLogin() {
+    const { error } = await sb.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.href }
+    });
+    if (error) showToast('Error al iniciar sesión.', 'error');
   }
 
-  window.onload = () => { initGoogle(); };
+  async function handleLogout() {
+    await sb.auth.signOut();
+    mensajes = [];
+  }
 
-  function handleLogin() { tokenClient.requestAccessToken(); }
-  function handleLogout() { accessToken = null; mensajes = []; document.getElementById('loginScreen').style.display = 'flex'; }
+  async function loadUserProfile() {
+    const meta = currentUser.user_metadata;
+    const displayName = meta.full_name || meta.name || currentUser.email;
+    const firstName = displayName.split(' ')[0];
 
-  async function fetchUser() {
-    const r = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', { headers: { Authorization: `Bearer ${accessToken}` } });
-    const u = await r.json();
-    user = { name: u.name || u.email, email: u.email, initials: (u.name||u.email).slice(0,2).toUpperCase(), picture: u.picture };
-    document.getElementById('userName').textContent = user.name;
-    document.getElementById('topbarSub').textContent = `Bienvenido de vuelta, ${user.name.split(' ')[0]}`;
+    document.getElementById('userName').textContent = displayName;
+    document.getElementById('topbarSub').textContent = `Bienvenido de vuelta, ${firstName}`;
     const av = document.getElementById('userAvatar');
-    av.innerHTML = user.picture ? `<img src="${user.picture}" alt="">` : user.initials;
+    av.innerHTML = meta.avatar_url ? `<img src="${meta.avatar_url}" alt="">` : displayName.slice(0,2).toUpperCase();
+
+    const { data } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
+    currentProfile = data;
+
+    const isPremium = data?.plan && data.plan !== 'basico';
+    document.querySelector('.user-plan').textContent = planLabel(data?.plan || 'basico');
+
+    // Mostrar vista de plan correcta
+    document.getElementById('plan-basico-view').style.display = isPremium ? 'none' : 'block';
+    document.getElementById('plan-premium-view').style.display = isPremium ? 'block' : 'none';
+    if (isPremium) {
+      document.getElementById('planName').textContent = planLabel(data.plan);
+      document.getElementById('planSub').textContent = data.plan === 'premium_postumo'
+        ? 'Lo pagan tus familiares — mensajes guardados para siempre'
+        : 'Pago único — Mensajes guardados para siempre';
+    }
+
+    // Mostrar banner upgrade en sección mensajes si es básico
+    document.getElementById('statCard4').innerHTML = isPremium
+      ? `<div class="stat-label">Plan activo</div><div class="stat-value" style="font-size:1.4rem;padding-top:0.4rem;">${planLabel(data?.plan)}</div><div class="stat-desc">Mensajes en custodia segura</div>`
+      : `<div class="stat-label">Plan activo</div><div class="stat-value" style="font-size:1.2rem;padding-top:0.6rem;color:var(--ink-muted);">Básico</div><div class="stat-desc" style="cursor:pointer;color:var(--purple-mid);" onclick="showSection('plan',null)">→ Actualizar a Premium</div>`;
   }
 
-  // ── SHEETS ──────────────────────────────────────────────────────
+  function planLabel(plan) {
+    const labels = { basico: 'Básico', premium_anticipado: 'Premium', premium_postumo: 'Premium Póstumo' };
+    return labels[plan] || 'Básico';
+  }
+
+  // ── MENSAJES ─────────────────────────────────────────────────────
   async function loadMensajes() {
-    try {
-      const r = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/A2:I1000`, { headers: { Authorization: `Bearer ${accessToken}` } });
-      const d = await r.json();
-      const rows = d.values || [];
-      mensajes = rows.map(row => ({
-        id: row[0]||'', fecha: row[1]||'', cliente: row[2]||'',
-        destinatario: row[3]||'', evento: row[4]||'', formato: row[5]||'',
-        enlace: row[6]||'', estado: row[7]||'Pendiente'
-      })).filter(m => m.cliente === user.email || m.cliente === user.name);
+    const { data, error } = await sb
+      .from('messages')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .order('created_at', { ascending: false });
 
-      const dests = [...new Set(mensajes.map(m => m.destinatario).filter(Boolean))];
-      document.getElementById('statTotal').textContent = mensajes.length;
-      document.getElementById('statDest').textContent = dests.length;
-      document.getElementById('msgCount').textContent = mensajes.length;
-      document.getElementById('mensajesStatus').textContent = `${mensajes.length} mensajes guardados de forma segura`;
-      const tipos = mensajes.reduce((a,m) => { m.evento?.toLowerCase().includes('despedida') ? a.d++ : m.fecha&&m.fecha!=='-' ? a.f++ : a.e++; return a; }, {f:0,e:0,d:0});
-      document.getElementById('statDesc').textContent = `${tipos.f} con fecha · ${tipos.e} por evento`;
-      document.getElementById('lastCheck').textContent = `Última comprobación: ${new Date().toLocaleDateString('es-ES')}`;
+    if (error) { showToast('Error al cargar mensajes.', 'error'); return; }
 
-      renderTabla('dashTable', mensajes.slice(0,4));
-      renderTabla('allTable', mensajes);
-      renderDests(dests);
-      renderDashDests(dests);
-    } catch(e) { showToast('Error al cargar mensajes.', 'error'); }
-  }
+    mensajes = data || [];
+    const dests = [...new Set(mensajes.map(m => m.recipient_name).filter(Boolean))];
 
-  async function appendSheet(row) {
-    await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/A1:I1:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ values: [row] })
-    });
-  }
+    document.getElementById('statTotal').textContent = mensajes.length;
+    document.getElementById('statDest').textContent = dests.length;
+    document.getElementById('msgCount').textContent = mensajes.length;
+    document.getElementById('mensajesStatus').textContent = `${mensajes.length} mensajes guardados de forma segura`;
 
-  // ── DRIVE ───────────────────────────────────────────────────────
-  async function getOrCreateFolder(name, parent) {
-    const q = encodeURIComponent(`name='${name}' and mimeType='application/vnd.google-apps.folder' and '${parent}' in parents and trashed=false`);
-    const r = await fetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id)`, { headers: { Authorization: `Bearer ${accessToken}` } });
-    const d = await r.json();
-    if (d.files?.length) return d.files[0].id;
-    const c = await fetch('https://www.googleapis.com/drive/v3/files', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, mimeType: 'application/vnd.google-apps.folder', parents: [parent] })
-    });
-    return (await c.json()).id;
-  }
+    const tipos = mensajes.reduce((a, m) => {
+      m.delivery_type === 'despedida' ? a.d++ : m.delivery_type === 'fecha' ? a.f++ : a.e++;
+      return a;
+    }, { f: 0, e: 0, d: 0 });
+    document.getElementById('statDesc').textContent = `${tipos.f} con fecha · ${tipos.e} por evento`;
+    document.getElementById('lastCheck').textContent = `Última comprobación: ${new Date().toLocaleDateString('es-ES')}`;
 
-  async function uploadDrive(file, name, onPct) {
-    const folder = await getOrCreateFolder(user.name || user.email, FOLDER_ID);
-    const meta = { name, parents: [folder] };
-    const form = new FormData();
-    form.append('metadata', new Blob([JSON.stringify(meta)], { type: 'application/json' }));
-    form.append('file', file);
-    return new Promise((res, rej) => {
-      const xhr = new XMLHttpRequest();
-      xhr.open('POST', 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,webViewLink');
-      xhr.setRequestHeader('Authorization', `Bearer ${accessToken}`);
-      xhr.upload.onprogress = e => { if (e.lengthComputable) onPct(Math.round(e.loaded/e.total*100)); };
-      xhr.onload = () => xhr.status === 200 ? res(JSON.parse(xhr.responseText).webViewLink || '') : rej(new Error('Upload failed'));
-      xhr.onerror = () => rej(new Error('Network error'));
-      xhr.send(form);
-    });
+    renderTabla('dashTable', mensajes.slice(0, 4));
+    renderTabla('allTable', mensajes);
+    renderDests(dests);
+    renderDashDests(dests);
   }
 
   // ── SAVE ────────────────────────────────────────────────────────
@@ -510,166 +571,249 @@
     const texto  = document.getElementById('fTexto').value.trim();
 
     if (!titulo || !dest) { showToast('Completa el título y el destinatario.', 'error'); return; }
-
-    const eventoFinal = tipo==='despedida' ? 'Despedida general — al fallecer' : tipo==='fecha' ? (fecha||'Sin fecha') : (evento||'Evento por definir');
-    const fechaFinal  = tipo==='fecha' ? fecha : '-';
-    const id = 'MSG-' + Date.now();
-    const hoy = new Date().toLocaleDateString('es-ES');
+    if (!email || !email.includes('@')) { showToast('Introduce un email válido para el destinatario.', 'error'); return; }
 
     const btn = document.getElementById('btnGuardar');
     btn.disabled = true; btn.textContent = 'Guardando...';
 
     try {
-      let enlace = '-';
+      let storagePath = null;
       const archivo = recBlob || selectedFile;
 
       if (selectedFmt === 'texto') {
-        const blob = new File([new Blob([texto],{type:'text/plain'})], `${titulo}.txt`, {type:'text/plain'});
-        showProg(true); enlace = await uploadDrive(blob, `[${id}] ${titulo}.txt`, updateProg); showProg(false);
+        if (!texto) { showToast('Escribe el mensaje antes de guardar.', 'error'); btn.disabled=false; btn.textContent='Guardar mensaje →'; return; }
+        const blob = new File([texto], `${titulo}.txt`, { type: 'text/plain' });
+        showProg(true);
+        storagePath = await uploadStorage(blob, `${titulo}.txt`);
+        showProg(false);
       } else if (archivo) {
-        const ext = archivo.name?.split('.').pop() || (selectedFmt==='audio'?'mp3':'mp4');
-        showProg(true); enlace = await uploadDrive(archivo, `[${id}] ${titulo}.${ext}`, updateProg); showProg(false);
+        const ext = archivo.name?.split('.').pop() || (selectedFmt === 'audio' ? 'webm' : 'webm');
+        showProg(true);
+        storagePath = await uploadStorage(archivo, `${titulo}.${ext}`);
+        showProg(false);
       } else {
         showToast('Graba o sube un archivo para continuar.', 'error');
-        btn.disabled=false; btn.textContent='Guardar mensaje →'; return;
+        btn.disabled = false; btn.textContent = 'Guardar mensaje →'; return;
       }
 
-      await appendSheet([id, hoy, user.email||user.name, `${dest} <${email}>`, eventoFinal, selectedFmt.charAt(0).toUpperCase()+selectedFmt.slice(1), enlace, 'Pendiente', '-']);
-      showToast(`✓ "${titulo}" guardado en Drive y registrado.`, 'success');
-      closeModal(); resetModal(); await loadMensajes();
-    } catch(e) { showToast('Error al guardar. Inténtalo de nuevo.', 'error'); showProg(false); }
+      const { error } = await sb.from('messages').insert({
+        user_id:           currentUser.id,
+        title:             titulo,
+        recipient_name:    dest,
+        recipient_email:   email,
+        delivery_type:     tipo,
+        event_description: evento || null,
+        delivery_date:     tipo === 'fecha' ? fecha : null,
+        format:            selectedFmt,
+        storage_path:      storagePath,
+        content:           selectedFmt === 'texto' ? texto : null,
+        guardian_note:     document.getElementById('fNota').value.trim() || null,
+      });
 
-    btn.disabled=false; btn.textContent='Guardar mensaje →';
+      if (error) throw error;
+
+      showToast(`✓ "${titulo}" guardado correctamente.`, 'success');
+      closeModal(); resetModal(); await loadMensajes();
+    } catch(e) {
+      console.error(e);
+      showToast('Error al guardar. Inténtalo de nuevo.', 'error');
+      showProg(false);
+    }
+
+    btn.disabled = false; btn.textContent = 'Guardar mensaje →';
+  }
+
+  async function uploadStorage(file, name) {
+    const path = `${currentUser.id}/${Date.now()}_${name}`;
+    const { error } = await sb.storage.from('messages').upload(path, file);
+    if (error) throw error;
+    return path;
+  }
+
+  // ── CHECKOUT (Stripe) ────────────────────────────────────────────
+  async function checkout(plan) {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { showToast('Inicia sesión primero.', 'error'); return; }
+
+    showToast('Preparando el pago...', 'success');
+    const res = await fetch(`${FUNCTIONS_URL}/create-checkout`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`
+      },
+      body: JSON.stringify({ plan })
+    });
+
+    const { url, error } = await res.json();
+    if (error) { showToast('Error al crear el pago. Inténtalo de nuevo.', 'error'); return; }
+    window.location.href = url;
   }
 
   // ── RECORDING ───────────────────────────────────────────────────
   async function toggleRecord() {
     if (!isRecording) {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia(selectedFmt==='audio' ? {audio:true} : {video:true,audio:true});
+        const stream = await navigator.mediaDevices.getUserMedia(selectedFmt === 'audio' ? { audio: true } : { video: true, audio: true });
         mediaRecorder = new MediaRecorder(stream); recChunks = [];
-        mediaRecorder.ondataavailable = e => { if(e.data.size>0) recChunks.push(e.data); };
+        mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recChunks.push(e.data); };
         mediaRecorder.onstop = () => {
-          const type = selectedFmt==='audio' ? 'audio/mp3' : 'video/mp4';
-          recBlob = new Blob(recChunks, {type}); recBlob.name = `grabacion.${selectedFmt==='audio'?'mp3':'mp4'}`;
+          const mime = mediaRecorder.mimeType || (selectedFmt === 'audio' ? 'audio/webm' : 'video/webm');
+          recBlob = new Blob(recChunks, { type: mime });
+          recBlob.name = `grabacion.webm`;
           const url = URL.createObjectURL(recBlob);
-          if (selectedFmt==='audio') { const a=document.getElementById('audioPlay'); a.src=url; a.style.display='block'; }
-          else { const v=document.getElementById('videoPlay'); v.src=url; v.style.display='block'; }
-          stream.getTracks().forEach(t=>t.stop());
+          if (selectedFmt === 'audio') { const a = document.getElementById('audioPlay'); a.src = url; a.style.display = 'block'; }
+          else { const v = document.getElementById('videoPlay'); v.src = url; v.style.display = 'block'; }
+          stream.getTracks().forEach(t => t.stop());
         };
-        mediaRecorder.start(); isRecording=true; recSecs=0;
+        mediaRecorder.start(); isRecording = true; recSecs = 0;
         document.getElementById('recordBtn').classList.add('recording');
-        document.getElementById('recordHint').textContent='Grabando... pulsa para parar';
-        recInterval = setInterval(() => { recSecs++; const m=Math.floor(recSecs/60),s=recSecs%60; document.getElementById('recordTime').textContent=`${m}:${s.toString().padStart(2,'0')}`; if(recSecs>=300) toggleRecord(); }, 1000);
-      } catch(e) { showToast('No se pudo acceder al micrófono/cámara.','error'); }
+        document.getElementById('recordHint').textContent = 'Grabando... pulsa para parar';
+        recInterval = setInterval(() => {
+          recSecs++;
+          const m = Math.floor(recSecs / 60), s = recSecs % 60;
+          document.getElementById('recordTime').textContent = `${m}:${s.toString().padStart(2, '0')}`;
+          if (recSecs >= 300) toggleRecord();
+        }, 1000);
+      } catch(e) { showToast('No se pudo acceder al micrófono/cámara.', 'error'); }
     } else {
-      mediaRecorder.stop(); isRecording=false; clearInterval(recInterval);
+      mediaRecorder.stop(); isRecording = false; clearInterval(recInterval);
       document.getElementById('recordBtn').classList.remove('recording');
-      document.getElementById('recordHint').textContent='Grabación completada ✓';
+      document.getElementById('recordHint').textContent = 'Grabación completada ✓';
     }
   }
 
   function handleFile(e) {
-    const f = e.target.files[0]; if(!f) return;
-    selectedFile=f; recBlob=null;
-    document.getElementById('uploadText').textContent=`✓ ${f.name} (${(f.size/1024/1024).toFixed(1)} MB)`;
+    const f = e.target.files[0]; if (!f) return;
+    selectedFile = f; recBlob = null;
+    document.getElementById('uploadText').textContent = `✓ ${f.name} (${(f.size/1024/1024).toFixed(1)} MB)`;
   }
 
   // ── UI HELPERS ──────────────────────────────────────────────────
-  function showProg(show) { document.getElementById('progressWrap').style.display=show?'block':'none'; if(!show){document.getElementById('progressFill').style.width='0%';document.getElementById('progressPct').textContent='0%';} }
-  function updateProg(p) { document.getElementById('progressFill').style.width=p+'%'; document.getElementById('progressPct').textContent=p+'%'; document.getElementById('progressLabel').textContent=p<100?'Subiendo a Google Drive...':'Procesando...'; }
+  function showProg(show) {
+    document.getElementById('progressWrap').style.display = show ? 'block' : 'none';
+    if (!show) { document.getElementById('progressFill').style.width = '0%'; document.getElementById('progressPct').textContent = '0%'; }
+  }
 
   function selectFmt(el, fmt) {
-    document.querySelectorAll('.format-opt').forEach(o=>o.classList.remove('selected')); el.classList.add('selected'); selectedFmt=fmt;
-    document.getElementById('recordSection').style.display=fmt==='texto'?'none':'block';
-    document.getElementById('textoSection').style.display=fmt==='texto'?'block':'none';
+    document.querySelectorAll('.format-opt').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected'); selectedFmt = fmt;
+    document.getElementById('recordSection').style.display = fmt === 'texto' ? 'none' : 'block';
+    document.getElementById('textoSection').style.display = fmt === 'texto' ? 'block' : 'none';
   }
 
   function toggleFecha() {
-    const t=document.getElementById('fTipo').value;
-    document.getElementById('rowEvento').style.display=t==='evento'?'block':'none';
-    document.getElementById('rowFecha').style.display=t==='fecha'?'block':'none';
+    const t = document.getElementById('fTipo').value;
+    document.getElementById('rowEvento').style.display = t === 'evento' ? 'block' : 'none';
+    document.getElementById('rowFecha').style.display = t === 'fecha' ? 'block' : 'none';
   }
 
   function openModal() { document.getElementById('modal').classList.add('open'); }
   function closeModal() { document.getElementById('modal').classList.remove('open'); }
-  function closeModalOutside(e) { if(e.target===document.getElementById('modal')) closeModal(); }
+  function closeModalOutside(e) { if (e.target === document.getElementById('modal')) closeModal(); }
 
   function resetModal() {
-    ['fTitulo','fDestinatario','fEmail','fEvento','fNota','fTexto'].forEach(id=>document.getElementById(id).value='');
-    document.getElementById('fFecha').value=''; document.getElementById('uploadText').textContent='Arrastra o haz clic para seleccionar';
-    document.getElementById('fileInput').value=''; document.getElementById('audioPlay').style.display='none'; document.getElementById('videoPlay').style.display='none';
-    document.getElementById('recordTime').textContent='0:00'; document.getElementById('recordHint').textContent='Pulsa para grabar · Máximo 5 minutos';
-    selectedFile=null; recBlob=null; recChunks=[]; if(isRecording&&mediaRecorder){mediaRecorder.stop();isRecording=false;clearInterval(recInterval);}
+    ['fTitulo','fDestinatario','fEmail','fEvento','fNota','fTexto'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('fFecha').value = '';
+    document.getElementById('uploadText').textContent = 'Arrastra o haz clic para seleccionar';
+    document.getElementById('fileInput').value = '';
+    document.getElementById('audioPlay').style.display = 'none';
+    document.getElementById('videoPlay').style.display = 'none';
+    document.getElementById('recordTime').textContent = '0:00';
+    document.getElementById('recordHint').textContent = 'Pulsa para grabar · Máximo 5 minutos';
+    selectedFile = null; recBlob = null; recChunks = [];
+    if (isRecording && mediaRecorder) { mediaRecorder.stop(); isRecording = false; clearInterval(recInterval); }
     showProg(false);
   }
 
-  function showToast(msg, type='success') {
-    const t=document.getElementById('toast'); t.textContent=msg; t.className=`toast ${type} show`;
-    setTimeout(()=>t.className='toast',4000);
+  function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.className = `toast ${type} show`;
+    setTimeout(() => t.className = 'toast', 4000);
   }
 
   const SECTION_TITLES = {
-    dashboard: ['Inicio', ()=>`Bienvenido de vuelta, ${user.name.split(' ')[0]}`],
-    mensajes:  ['Mis mensajes', ()=>`${mensajes.length} mensajes guardados`],
-    destinatarios: ['Destinatarios', ()=>'Personas que recibirán tus mensajes'],
-    plan: ['Mi plan', ()=>'Premium — Pago único para siempre']
+    dashboard:     ['Inicio',         () => currentUser ? `Bienvenido de vuelta, ${(currentUser.user_metadata?.full_name||currentUser.email).split(' ')[0]}` : ''],
+    mensajes:      ['Mis mensajes',   () => `${mensajes.length} mensajes guardados`],
+    destinatarios: ['Destinatarios',  () => 'Personas que recibirán tus mensajes'],
+    plan:          ['Mi plan',        () => planLabel(currentProfile?.plan || 'basico')],
   };
 
   function showSection(name, el) {
-    document.querySelectorAll('.section-panels > div').forEach(d=>d.classList.remove('active'));
-    document.getElementById('section-'+name).classList.add('active');
-    document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
-    if(el) el.classList.add('active');
-    if(SECTION_TITLES[name]) { document.getElementById('topbarTitle').textContent=SECTION_TITLES[name][0]; document.getElementById('topbarSub').textContent=SECTION_TITLES[name][1](); }
+    document.querySelectorAll('.section-panels > div').forEach(d => d.classList.remove('active'));
+    document.getElementById('section-' + name).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    if (el) el.classList.add('active');
+    if (SECTION_TITLES[name]) {
+      document.getElementById('topbarTitle').textContent = SECTION_TITLES[name][0];
+      document.getElementById('topbarSub').textContent = SECTION_TITLES[name][1]();
+    }
   }
 
   // ── RENDER ──────────────────────────────────────────────────────
-  function fmtClass(f) { const fl=f.toLowerCase(); return fl.includes('vid')?'format-video':fl==='audio'?'format-audio':'format-text'; }
-  function stClass(m) { return m.evento?.toLowerCase().includes('despedida')?'status-despedida':m.fecha&&m.fecha!=='-'?'status-programado':'status-evento'; }
-  function stLabel(m) { return m.evento?.toLowerCase().includes('despedida')?'Despedida':m.fecha&&m.fecha!=='-'?'Programado':'Por evento'; }
+  function fmtClass(f) { return f === 'video' ? 'format-video' : f === 'audio' ? 'format-audio' : 'format-text'; }
+  function stClass(m) { return m.delivery_type === 'despedida' ? 'status-despedida' : m.delivery_type === 'fecha' ? 'status-programado' : 'status-evento'; }
+  function stLabel(m) { return m.delivery_type === 'despedida' ? 'Despedida' : m.delivery_type === 'fecha' ? 'Programado' : 'Por evento'; }
+  function fmtLabel(f) { return f === 'video' ? 'Vídeo' : f === 'audio' ? 'Audio' : 'Texto'; }
+
+  function getFileUrl(path) {
+    if (!path) return null;
+    const { data } = sb.storage.from('messages').getPublicUrl(path);
+    return data?.publicUrl || null;
+  }
 
   function renderTabla(id, lista) {
     const c = document.getElementById(id);
-    if (!lista.length) { c.innerHTML=`<div class="table-head"><span class="th">Mensaje</span><span class="th">Para</span><span class="th">Evento</span><span class="th">Formato</span><span class="th">Estado</span><span class="th"></span></div><div class="empty-state">Aún no tienes mensajes. ¡Crea tu primero!</div>`; return; }
-    let h=`<div class="table-head"><span class="th">Mensaje</span><span class="th">Para</span><span class="th">Evento</span><span class="th">Formato</span><span class="th">Estado</span><span class="th"></span></div>`;
+    if (!lista.length) {
+      c.innerHTML = `<div class="table-head"><span class="th">Mensaje</span><span class="th">Para</span><span class="th">Evento / Fecha</span><span class="th">Formato</span><span class="th">Estado</span><span class="th"></span></div><div class="empty-state">Aún no tienes mensajes. ¡Crea tu primero!</div>`;
+      return;
+    }
+    let h = `<div class="table-head"><span class="th">Mensaje</span><span class="th">Para</span><span class="th">Evento / Fecha</span><span class="th">Formato</span><span class="th">Estado</span><span class="th"></span></div>`;
     lista.forEach(m => {
-      const nombre = m.destinatario?.split('<')[0].trim()||'-';
-      h+=`<div class="table-row">
-        <div><div class="msg-title">${m.evento||'Mensaje'}</div><div class="msg-sub">${m.fecha!=='-'?m.fecha:m.id}</div></div>
-        <div class="td">${nombre}</div>
-        <div class="td">${m.fecha!=='-'?m.fecha:(m.evento||'-')}</div>
-        <div><span class="format-badge ${fmtClass(m.formato)}">${m.formato}</span></div>
+      const eventoCell = m.delivery_type === 'fecha'
+        ? (m.delivery_date ? new Date(m.delivery_date).toLocaleDateString('es-ES') : '—')
+        : (m.event_description || (m.delivery_type === 'despedida' ? 'Al fallecer' : '—'));
+      const fileUrl = m.storage_path ? getFileUrl(m.storage_path) : null;
+      h += `<div class="table-row">
+        <div><div class="msg-title">${m.title}</div><div class="msg-sub">${new Date(m.created_at).toLocaleDateString('es-ES')}</div></div>
+        <div class="td">${m.recipient_name}</div>
+        <div class="td">${eventoCell}</div>
+        <div><span class="format-badge ${fmtClass(m.format)}">${fmtLabel(m.format)}</span></div>
         <div><span class="status-badge ${stClass(m)}">${stLabel(m)}</span></div>
-        <div class="row-actions">${m.enlace&&m.enlace!=='-'?`<a href="${m.enlace}" target="_blank" class="action-btn" title="Ver en Drive"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 2H3a1 1 0 00-1 1v10a1 1 0 001 1h10a1 1 0 001-1V9M9 1h6v6M8 8l6-6"/></svg></a>`:''}</div>
+        <div class="row-actions">${fileUrl ? `<a href="${fileUrl}" target="_blank" class="action-btn" title="Ver archivo"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 2H3a1 1 0 00-1 1v10a1 1 0 001 1h10a1 1 0 001-1V9M9 1h6v6M8 8l6-6"/></svg></a>` : ''}</div>
       </div>`;
     });
-    c.innerHTML=h;
+    c.innerHTML = h;
   }
 
   function renderDests(dests) {
     const card = document.getElementById('destCard');
-    if(!dests.length){card.innerHTML=`<div class="card-header"><h3>Todos los destinatarios</h3></div><div class="empty-state">Añade mensajes para ver los destinatarios aquí.</div>`;return;}
-    let h=`<div class="card-header"><h3>Todos los destinatarios</h3></div>`;
-    dests.forEach((d,i)=>{
-      const c=COLORS[i%COLORS.length], init=d.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-      const count=mensajes.filter(m=>m.destinatario?.includes(d.split('<')[0].trim())).length;
-      const emailMatch=d.match(/<(.+)>/);
-      h+=`<div class="dest-item"><div class="dest-avatar" style="background:${c.bg};color:${c.fg};">${init}</div><div><div class="dest-name">${d.split('<')[0].trim()}</div><div class="dest-sub">${emailMatch?emailMatch[1]:''}</div></div><div class="dest-count">${count} mensaje${count!==1?'s':''}</div></div>`;
+    if (!dests.length) {
+      card.innerHTML = `<div class="card-header"><h3>Todos los destinatarios</h3></div><div class="empty-state">Añade mensajes para ver los destinatarios aquí.</div>`;
+      return;
+    }
+    let h = `<div class="card-header"><h3>Todos los destinatarios</h3></div>`;
+    dests.forEach((d, i) => {
+      const col = COLORS[i % COLORS.length];
+      const init = d.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+      const msgs = mensajes.filter(m => m.recipient_name === d);
+      const email = msgs[0]?.recipient_email || '';
+      h += `<div class="dest-item"><div class="dest-avatar" style="background:${col.bg};color:${col.fg};">${init}</div><div><div class="dest-name">${d}</div><div class="dest-sub">${email}</div></div><div class="dest-count">${msgs.length} mensaje${msgs.length !== 1 ? 's' : ''}</div></div>`;
     });
-    card.innerHTML=h;
+    card.innerHTML = h;
   }
 
   function renderDashDests(dests) {
-    const el=document.getElementById('dashDests');
-    if(!dests.length){el.innerHTML=`<div class="empty-state" style="padding:1.5rem;">Sin destinatarios aún</div>`;return;}
-    let h='';
-    dests.slice(0,4).forEach((d,i)=>{
-      const c=COLORS[i%COLORS.length], init=d.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-      const count=mensajes.filter(m=>m.destinatario?.includes(d.split('<')[0].trim())).length;
-      h+=`<div class="dest-item"><div class="dest-avatar" style="background:${c.bg};color:${c.fg};">${init}</div><div><div class="dest-name">${d.split('<')[0].trim()}</div><div class="dest-sub">${count} mensaje${count!==1?'s':''}</div></div></div>`;
+    const el = document.getElementById('dashDests');
+    if (!dests.length) { el.innerHTML = `<div class="empty-state" style="padding:1.5rem;">Sin destinatarios aún</div>`; return; }
+    let h = '';
+    dests.slice(0, 4).forEach((d, i) => {
+      const col = COLORS[i % COLORS.length];
+      const init = d.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+      const count = mensajes.filter(m => m.recipient_name === d).length;
+      h += `<div class="dest-item"><div class="dest-avatar" style="background:${col.bg};color:${col.fg};">${init}</div><div><div class="dest-name">${d}</div><div class="dest-sub">${count} mensaje${count !== 1 ? 's' : ''}</div></div></div>`;
     });
-    el.innerHTML=h;
+    el.innerHTML = h;
   }
 </script>
 </body>

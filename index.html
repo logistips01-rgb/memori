@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Memori — Porque algunas palabras merecen llegar</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -874,7 +875,7 @@
           <li>Se entrega en el velatorio</li>
           <li>Custodia segura garantizada</li>
         </ul>
-        <a href="#registro" class="plan-btn">Comenzar gratis</a>
+        <a href="panel.html" class="plan-btn">Comenzar gratis</a>
       </div>
 
       <div class="plan-card featured">
@@ -891,7 +892,7 @@
           <li>Guía de grabación incluida</li>
           <li>Resumen PDF — tu testigo digital</li>
         </ul>
-        <a href="#registro" class="plan-btn">Elegir este plan</a>
+        <a href="panel.html" class="plan-btn" onclick="sessionStorage.setItem('intendedPlan','premium_anticipado')">Elegir este plan</a>
       </div>
 
       <div class="plan-card">
@@ -904,7 +905,7 @@
           <li>La funeraria gestiona el cobro</li>
           <li>Ideal si prefieres no pagar ahora</li>
         </ul>
-        <a href="#registro" class="plan-btn">Elegir este plan</a>
+        <a href="panel.html" class="plan-btn" onclick="sessionStorage.setItem('intendedPlan','premium_postumo')">Elegir este plan</a>
       </div>
 
     </div>
@@ -970,7 +971,7 @@
         <li>Onboarding personalizado</li>
       </ul>
       <p class="funeral-card-note">Sin permanencia. El servicio al cliente final es gratuito — vosotros solo pagáis la gestión.</p>
-      <a href="mailto:funerarias@memori.es" class="btn-primary" style="width:100%;text-align:center;display:block;">Solicitar información</a>
+      <a href="#registro" class="btn-primary" style="width:100%;text-align:center;display:block;" onclick="document.getElementById('cType').value='funeraria';document.getElementById('registro').scrollIntoView({behavior:'smooth'});">Solicitar información</a>
     </div>
   </div>
 </section>
@@ -1014,25 +1015,31 @@
   <div class="form-inner">
     <span class="section-label">Empieza hoy</span>
     <h2 class="section-title" style="margin:0 auto;">Tu primer mensaje<br><em>es gratuito</em></h2>
-    <div class="form-box">
+    <div class="form-box" id="contactForm">
       <div class="form-row">
         <label class="form-label">Nombre completo</label>
-        <input type="text" class="form-input" placeholder="Tu nombre">
+        <input type="text" class="form-input" id="cName" placeholder="Tu nombre">
       </div>
       <div class="form-row">
         <label class="form-label">Correo electrónico</label>
-        <input type="email" class="form-input" placeholder="tu@email.com">
+        <input type="email" class="form-input" id="cEmail" placeholder="tu@email.com">
       </div>
       <div class="form-row">
         <label class="form-label">¿Eres...?</label>
-        <select class="form-select">
+        <select class="form-select" id="cType">
           <option value="">Selecciona una opción</option>
-          <option>Una persona que quiere dejar mensajes</option>
-          <option>Una funeraria interesada en el servicio</option>
+          <option value="particular">Una persona que quiere dejar mensajes</option>
+          <option value="funeraria">Una funeraria interesada en el servicio</option>
         </select>
       </div>
-      <button class="form-submit">Crear mi cuenta gratuita</button>
+      <div id="cFeedback" style="display:none;padding:0.75rem;border-radius:3px;font-size:0.82rem;margin-bottom:1rem;"></div>
+      <button class="form-submit" id="cBtn" onclick="submitContact()">Crear mi cuenta gratuita</button>
       <p class="form-note">Sin tarjeta de crédito. Sin compromiso. Tu primer mensaje de despedida es siempre gratuito.</p>
+    </div>
+    <div id="contactSuccess" style="display:none;text-align:center;padding:2rem;">
+      <div style="font-size:2rem;margin-bottom:1rem;">✓</div>
+      <p style="font-size:1rem;color:var(--purple);font-weight:500;margin-bottom:0.5rem;">¡Recibido!</p>
+      <p style="font-size:0.85rem;color:var(--ink-muted);line-height:1.7;">Te hemos enviado un email con el enlace para acceder a tu panel.<br>Si eres funeraria, nos pondremos en contacto contigo en menos de 24h.</p>
     </div>
   </div>
 </section>
@@ -1056,5 +1063,68 @@
   <p class="footer-copy">© 2026 Memori. Todos los derechos reservados.</p>
 </footer>
 
+<script>
+  // ── CONFIG ──────────────────────────────────────────────────────
+  const SUPABASE_URL  = 'https://YOUR_PROJECT.supabase.co';
+  const SUPABASE_ANON = 'YOUR_ANON_KEY';
+
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+  // ── CONTACT FORM ─────────────────────────────────────────────────
+  async function submitContact() {
+    const name  = document.getElementById('cName').value.trim();
+    const email = document.getElementById('cEmail').value.trim();
+    const type  = document.getElementById('cType').value;
+
+    const fb = document.getElementById('cFeedback');
+
+    if (!name || !email || !type) {
+      fb.style.display = 'block';
+      fb.style.background = '#FCEBEB';
+      fb.style.color = '#A32D2D';
+      fb.textContent = 'Por favor, rellena todos los campos.';
+      return;
+    }
+    if (!email.includes('@')) {
+      fb.style.display = 'block';
+      fb.style.background = '#FCEBEB';
+      fb.style.color = '#A32D2D';
+      fb.textContent = 'Introduce un email válido.';
+      return;
+    }
+
+    const btn = document.getElementById('cBtn');
+    btn.disabled = true; btn.textContent = 'Enviando...';
+    fb.style.display = 'none';
+
+    const { error } = await sb.from('contact_requests').insert({ name, email, type });
+
+    btn.disabled = false; btn.textContent = 'Crear mi cuenta gratuita';
+
+    if (error) {
+      fb.style.display = 'block';
+      fb.style.background = '#FCEBEB';
+      fb.style.color = '#A32D2D';
+      fb.textContent = 'Error al enviar. Inténtalo de nuevo o escríbenos a hola@memori.mlorente.es';
+      return;
+    }
+
+    document.getElementById('contactForm').style.display = 'none';
+    document.getElementById('contactSuccess').style.display = 'block';
+
+    // Si es particular, redirigir al panel tras 2 segundos
+    if (type === 'particular') {
+      setTimeout(() => { window.location.href = 'panel.html'; }, 2500);
+    }
+  }
+
+  // Permitir enviar con Enter
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && document.activeElement?.closest('#contactForm')) {
+      submitContact();
+    }
+  });
+</script>
 </body>
 </html>

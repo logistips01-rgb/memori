@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Memori — Panel Funeraria</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -513,9 +514,53 @@
     font-size: 0.82rem; color: var(--ink-muted);
     border-bottom: none;
   }
+
+  /* LOGIN */
+  .login-screen { position: fixed; inset: 0; background: #1a1612; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999; }
+  .login-logo { font-family: 'Cormorant Garamond', serif; font-size: 2.5rem; font-weight: 300; color: var(--white); letter-spacing: 0.1em; margin-bottom: 0.3rem; }
+  .login-sub { font-size: 0.72rem; color: rgba(255,255,255,0.3); letter-spacing: 0.12em; margin-bottom: 3rem; }
+  .login-box { background: #252220; border: 1px solid rgba(255,255,255,0.07); border-radius: 4px; padding: 2.5rem; width: 380px; }
+  .login-box h2 { font-size: 1rem; font-weight: 500; color: var(--white); margin-bottom: 0.4rem; }
+  .login-box p { font-size: 0.78rem; color: rgba(255,255,255,0.4); margin-bottom: 2rem; line-height: 1.6; }
+  .login-field { margin-bottom: 1rem; }
+  .login-field label { display: block; font-size: 0.68rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 0.4rem; }
+  .login-field input { width: 100%; padding: 0.75rem 1rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; color: var(--white); outline: none; transition: border-color 0.2s; }
+  .login-field input:focus { border-color: var(--gold); }
+  .login-btn { width: 100%; padding: 0.8rem; background: var(--gold); color: var(--ink); border: none; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: background 0.2s; margin-top: 0.5rem; }
+  .login-btn:hover { background: #b89660; }
+  .login-btn:disabled { background: #6b5c3a; cursor: not-allowed; }
+  .login-error { font-size: 0.75rem; color: #e57373; margin-top: 0.75rem; text-align: center; }
+  .login-note { font-size: 0.68rem; color: rgba(255,255,255,0.2); margin-top: 1.5rem; text-align: center; }
+
+  /* TOAST */
+  .toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--ink); color: var(--white); padding: 0.9rem 1.5rem; border-radius: 3px; font-size: 0.82rem; z-index: 500; transform: translateY(100px); opacity: 0; transition: transform 0.3s ease, opacity 0.3s ease; max-width: 320px; line-height: 1.5; }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { border-left: 3px solid var(--gold); }
+  .toast.error { border-left: 3px solid var(--danger); }
 </style>
 </head>
 <body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-logo">memori</div>
+  <div class="login-sub">Panel de funeraria · Acceso profesional</div>
+  <div class="login-box">
+    <h2>Acceso restringido</h2>
+    <p>Introduce las credenciales de tu funeraria para acceder al panel de gestión.</p>
+    <div class="login-field">
+      <label>Email</label>
+      <input type="email" id="loginEmail" placeholder="funeraria@ejemplo.com" autocomplete="email">
+    </div>
+    <div class="login-field">
+      <label>Contraseña</label>
+      <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <div id="loginError" class="login-error" style="display:none;"></div>
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">Entrar</button>
+  </div>
+  <p class="login-note">¿Necesitas acceso? Contacta con Memori en hola@memori.mlorente.es</p>
+</div>
 
 <!-- SIDEBAR -->
 <aside class="sidebar">
@@ -588,6 +633,7 @@
       <span class="plan-pill-label">Plan profesional</span>
       <span class="plan-pill-price">29€/mes</span>
     </div>
+    <button onclick="doLogout()" style="margin-top:0.75rem;width:100%;padding:0.45rem;background:none;border:1px solid rgba(255,255,255,0.1);border-radius:2px;font-family:'DM Sans',sans-serif;font-size:0.7rem;color:rgba(255,255,255,0.3);cursor:pointer;transition:all 0.15s;" onmouseover="this.style.color='rgba(255,255,255,0.6)'" onmouseout="this.style.color='rgba(255,255,255,0.3)'">Cerrar sesión</button>
   </div>
 </aside>
 
@@ -612,11 +658,11 @@
     <!-- DASHBOARD -->
     <div id="section-dashboard">
 
-      <div class="alert-banner" onclick="showSection('fallecidos', null)">
+      <div class="alert-banner" id="alert-banner" onclick="showSection('fallecidos', null)" style="display:none;">
         <div class="alert-dot"></div>
         <div>
-          <div class="alert-text">Fallecimiento pendiente de notificar</div>
-          <div class="alert-sub">José Antonio Vega — Registrado hace 2 días</div>
+          <div class="alert-text" id="alert-text">Fallecimiento pendiente de notificar</div>
+          <div class="alert-sub">Accede a la sección para gestionarlo</div>
         </div>
         <span class="alert-action">Notificar ahora →</span>
       </div>
@@ -624,22 +670,22 @@
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-label">Clientes activos</div>
-          <div class="stat-value">247</div>
-          <div class="stat-up">↑ 12 este mes</div>
+          <div class="stat-value" id="stat-activos">—</div>
+          <div class="stat-up">Registrados en tu funeraria</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Mensajes guardados</div>
-          <div class="stat-value">1.840</div>
+          <div class="stat-value" id="stat-mensajes">—</div>
           <div class="stat-desc">En custodia segura</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Fallecimientos gestionados</div>
-          <div class="stat-value">12</div>
+          <div class="stat-value" id="stat-fallecidos">—</div>
           <div class="stat-desc">Desde el inicio</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Cobros pendientes</div>
-          <div class="stat-value">2</div>
+          <div class="stat-value" id="stat-cobros">—</div>
           <div class="stat-alert">Requieren atención</div>
         </div>
       </div>
@@ -659,41 +705,7 @@
           <span class="th"></span>
         </div>
 
-        <div class="table-row">
-          <div><div class="client-name">María García López</div><div class="client-sub">maria@email.com</div></div>
-          <div><span class="plan-badge p-premium">Premium</span></div>
-          <div class="td">12 mar 2025</div>
-          <div class="td">8</div>
-          <div><span class="status-badge s-activo">Activo</span></div>
-          <div class="row-actions"><button class="action-btn">Ver ficha</button></div>
-        </div>
-
-        <div class="table-row">
-          <div><div class="client-name">José Antonio Vega</div><div class="client-sub">jose@email.com</div></div>
-          <div><span class="plan-badge p-premium">Premium</span></div>
-          <div class="td">5 ene 2025</div>
-          <div class="td">14</div>
-          <div><span class="status-badge s-cobro">Cobro pendiente</span></div>
-          <div class="row-actions"><button class="action-btn danger">Gestionar cobro</button></div>
-        </div>
-
-        <div class="table-row">
-          <div><div class="client-name">Carmen Rodríguez</div><div class="client-sub">carmen@email.com</div></div>
-          <div><span class="plan-badge p-basico">Básico</span></div>
-          <div class="td">20 abr 2025</div>
-          <div class="td">1</div>
-          <div><span class="status-badge s-activo">Activo</span></div>
-          <div class="row-actions"><button class="action-btn">Ver ficha</button></div>
-        </div>
-
-        <div class="table-row">
-          <div><div class="client-name">Francisco Jiménez</div><div class="client-sub">fran@email.com</div></div>
-          <div><span class="plan-badge p-premium">Premium</span></div>
-          <div class="td">8 feb 2025</div>
-          <div class="td">6</div>
-          <div><span class="status-badge s-fallecido">Fallecido</span></div>
-          <div class="row-actions"><button class="action-btn">Ver ficha</button></div>
-        </div>
+        <div id="dash-client-table"><div class="empty-row">Cargando clientes...</div></div>
       </div>
 
       <div class="bottom-grid">
@@ -702,28 +714,7 @@
             <h3>Cobros póstumos pendientes</h3>
             <span onclick="showSection('cobros', null)">Ver todos</span>
           </div>
-          <div class="cobro-item">
-            <div class="cobro-avatar">JV</div>
-            <div>
-              <div class="cobro-name">José Antonio Vega</div>
-              <div class="cobro-sub">Fallecido el 1 may 2026</div>
-            </div>
-            <div class="cobro-amount">
-              <div class="cobro-price">99€</div>
-              <div class="cobro-status">Pendiente</div>
-            </div>
-          </div>
-          <div class="cobro-item">
-            <div class="cobro-avatar">PR</div>
-            <div>
-              <div class="cobro-name">Pedro Ruiz Sánchez</div>
-              <div class="cobro-sub">Fallecido el 18 abr 2026</div>
-            </div>
-            <div class="cobro-amount">
-              <div class="cobro-price">99€</div>
-              <div class="cobro-status">Pendiente</div>
-            </div>
-          </div>
+          <div id="cobros-dashboard"><div class="empty-row" style="padding:1rem;">Cargando...</div></div>
         </div>
 
         <div class="card">
@@ -755,43 +746,20 @@
           <span class="th">Estado</span>
           <span class="th"></span>
         </div>
-        <div class="table-row"><div><div class="client-name">María García López</div><div class="client-sub">maria@email.com</div></div><div><span class="plan-badge p-premium">Premium</span></div><div class="td">12 mar 2025</div><div class="td">8</div><div><span class="status-badge s-activo">Activo</span></div><div class="row-actions"><button class="action-btn">Ver ficha</button></div></div>
-        <div class="table-row"><div><div class="client-name">José Antonio Vega</div><div class="client-sub">jose@email.com</div></div><div><span class="plan-badge p-premium">Premium</span></div><div class="td">5 ene 2025</div><div class="td">14</div><div><span class="status-badge s-cobro">Cobro pendiente</span></div><div class="row-actions"><button class="action-btn danger">Gestionar cobro</button></div></div>
-        <div class="table-row"><div><div class="client-name">Carmen Rodríguez</div><div class="client-sub">carmen@email.com</div></div><div><span class="plan-badge p-basico">Básico</span></div><div class="td">20 abr 2025</div><div class="td">1</div><div><span class="status-badge s-activo">Activo</span></div><div class="row-actions"><button class="action-btn">Ver ficha</button></div></div>
-        <div class="table-row"><div><div class="client-name">Francisco Jiménez</div><div class="client-sub">fran@email.com</div></div><div><span class="plan-badge p-premium">Premium</span></div><div class="td">8 feb 2025</div><div class="td">6</div><div><span class="status-badge s-fallecido">Fallecido</span></div><div class="row-actions"><button class="action-btn">Ver ficha</button></div></div>
-        <div class="table-row"><div><div class="client-name">Ana Belén Torres</div><div class="client-sub">ana@email.com</div></div><div><span class="plan-badge p-premium">Premium</span></div><div class="td">2 mar 2025</div><div class="td">11</div><div><span class="status-badge s-activo">Activo</span></div><div class="row-actions"><button class="action-btn">Ver ficha</button></div></div>
-        <div class="table-row"><div><div class="client-name">Manuel Fernández</div><div class="client-sub">manu@email.com</div></div><div><span class="plan-badge p-basico">Básico</span></div><div class="td">15 abr 2025</div><div class="td">1</div><div><span class="status-badge s-activo">Activo</span></div><div class="row-actions"><button class="action-btn">Ver ficha</button></div></div>
+        <div id="clientes-table"><div class="empty-row">Cargando clientes...</div></div>
       </div>
     </div>
 
     <!-- NOTIFICAR FALLECIMIENTO -->
     <div id="section-fallecidos" style="display:none;">
-      <div class="alert-banner" style="cursor:default;">
-        <div class="alert-dot"></div>
-        <div>
-          <div class="alert-text">1 fallecimiento pendiente de notificar</div>
-          <div class="alert-sub">José Antonio Vega — Lleva 2 días sin notificar. Los mensajes de despedida no se han liberado aún.</div>
-        </div>
-      </div>
-
       <div class="table-wrap" style="margin-bottom:2rem;">
-        <div class="card-header" style="padding:1rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+        <div class="card-header" style="padding:1rem 1.5rem;border-bottom:1px solid var(--border);">
           <h3 style="font-size:0.85rem;font-weight:500;">Pendientes de notificar</h3>
         </div>
         <div class="table-head" style="grid-template-columns:2fr 1fr 1fr 1fr 120px;">
-          <span class="th">Cliente</span>
-          <span class="th">Plan</span>
-          <span class="th">Mensajes</span>
-          <span class="th">Días sin notificar</span>
-          <span class="th"></span>
+          <span class="th">Cliente</span><span class="th">Plan</span><span class="th">Mensajes</span><span class="th">Días</span><span class="th"></span>
         </div>
-        <div class="table-row" style="grid-template-columns:2fr 1fr 1fr 1fr 120px;">
-          <div><div class="client-name">José Antonio Vega</div><div class="client-sub">jose@email.com · +34 612 000 111</div></div>
-          <div><span class="plan-badge p-premium">Premium</span></div>
-          <div class="td">14 mensajes</div>
-          <div><span style="color:var(--danger);font-size:0.82rem;font-weight:500;">2 días</span></div>
-          <div class="row-actions" style="opacity:1;"><button class="btn-danger" style="font-size:0.72rem;padding:0.4rem 0.8rem;" onclick="openModal()">Notificar</button></div>
-        </div>
+        <div id="pending-deaths-table"><div class="empty-row">Cargando...</div></div>
       </div>
 
       <div class="table-wrap">
@@ -799,14 +767,9 @@
           <h3 style="font-size:0.85rem;font-weight:500;">Fallecimientos gestionados</h3>
         </div>
         <div class="table-head" style="grid-template-columns:2fr 1fr 1fr 1fr 100px;">
-          <span class="th">Cliente</span>
-          <span class="th">Fecha fallecimiento</span>
-          <span class="th">Guardián principal</span>
-          <span class="th">Cobro</span>
-          <span class="th"></span>
+          <span class="th">Cliente</span><span class="th">Fecha</span><span class="th">Guardián</span><span class="th">Cobro</span><span class="th"></span>
         </div>
-        <div class="table-row" style="grid-template-columns:2fr 1fr 1fr 1fr 100px;"><div><div class="client-name">Francisco Jiménez</div><div class="client-sub">Premium · 6 mensajes</div></div><div class="td">15 abr 2026</div><div class="td">Luis Jiménez</div><div><span class="status-badge s-activo">Cobrado</span></div><div class="row-actions"><button class="action-btn">Ver</button></div></div>
-        <div class="table-row" style="grid-template-columns:2fr 1fr 1fr 1fr 100px;"><div><div class="client-name">Pedro Ruiz Sánchez</div><div class="client-sub">Premium póstumo · 9 mensajes</div></div><div class="td">18 abr 2026</div><div class="td">Elena Ruiz</div><div><span class="status-badge s-cobro">Pendiente</span></div><div class="row-actions"><button class="action-btn danger">Cobrar</button></div></div>
+        <div id="managed-deaths-table"><div class="empty-row">Cargando...</div></div>
       </div>
     </div>
 
@@ -824,22 +787,7 @@
           <span class="th">Estado</span>
           <span class="th"></span>
         </div>
-        <div class="table-row" style="grid-template-columns:2fr 1.2fr 1fr 1fr 1fr 100px;">
-          <div><div class="client-name">José Antonio Vega</div><div class="client-sub">14 mensajes guardados</div></div>
-          <div class="td">María Vega (hija)</div>
-          <div class="td">1 may 2026</div>
-          <div class="td" style="font-weight:500;">99€</div>
-          <div><span class="status-badge s-cobro">Pendiente</span></div>
-          <div class="row-actions" style="opacity:1;"><button class="action-btn">Marcar cobrado</button></div>
-        </div>
-        <div class="table-row" style="grid-template-columns:2fr 1.2fr 1fr 1fr 1fr 100px;">
-          <div><div class="client-name">Pedro Ruiz Sánchez</div><div class="client-sub">9 mensajes guardados</div></div>
-          <div class="td">Elena Ruiz (esposa)</div>
-          <div class="td">18 abr 2026</div>
-          <div class="td" style="font-weight:500;">99€</div>
-          <div><span class="status-badge s-cobro">Pendiente</span></div>
-          <div class="row-actions" style="opacity:1;"><button class="action-btn">Marcar cobrado</button></div>
-        </div>
+        <div id="cobros-table"><div class="empty-row">Cargando...</div></div>
       </div>
 
       <div style="background:var(--purple-light);border:1px solid var(--border);border-radius:4px;padding:1.25rem 1.5rem;font-size:0.82rem;color:var(--ink-light);line-height:1.7;max-width:600px;">
@@ -932,19 +880,339 @@
     </div>
     <div class="modal-footer">
       <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
-      <button class="btn-confirm" onclick="closeModal()">Confirmar fallecimiento</button>
+      <button class="btn-confirm" onclick="confirmarFallecimiento()">Confirmar fallecimiento</button>
     </div>
   </div>
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script>
+  // ── CONFIG ──────────────────────────────────────────────────────
+  const SUPABASE_URL  = 'https://YOUR_PROJECT.supabase.co';
+  const SUPABASE_ANON = 'YOUR_ANON_KEY';
+  const FUNCTIONS_URL = SUPABASE_URL + '/functions/v1';
+
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+  let currentUser = null, funeralHome = null;
+  let allClients = [], deathNotifications = [], pendingDeaths = [];
+
   const sections = ['dashboard','clientes','fallecidos','cobros','estadisticas'];
+
+  // ── AUTH ────────────────────────────────────────────────────────
+  window.addEventListener('load', async () => {
+    sb.auth.onAuthStateChange(async (event, session) => {
+      if (session) {
+        currentUser = session.user;
+        const ok = await checkFuneralStaff();
+        if (!ok) {
+          await sb.auth.signOut();
+          showLoginError('No tienes acceso a ningún panel de funeraria. Contacta con Memori.');
+          return;
+        }
+        document.getElementById('loginScreen').style.display = 'none';
+        await loadAll();
+      } else {
+        currentUser = null;
+        document.getElementById('loginScreen').style.display = 'flex';
+      }
+    });
+  });
+
+  async function checkFuneralStaff() {
+    const { data } = await sb.from('funeral_home_users').select('funeral_home_id, funeral_homes(*)').eq('id', currentUser.id).single();
+    if (!data) return false;
+    funeralHome = data.funeral_homes;
+    updateSidebarName(funeralHome?.name || 'Funeraria');
+    return true;
+  }
+
+  async function doLogin() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const pass  = document.getElementById('loginPassword').value;
+    if (!email || !pass) { showLoginError('Introduce email y contraseña.'); return; }
+
+    const btn = document.getElementById('loginBtn');
+    btn.disabled = true; btn.textContent = 'Entrando...';
+    document.getElementById('loginError').style.display = 'none';
+
+    const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+    btn.disabled = false; btn.textContent = 'Entrar';
+
+    if (error) showLoginError('Email o contraseña incorrectos.');
+  }
+
+  async function doLogout() {
+    await sb.auth.signOut();
+    allClients = []; deathNotifications = []; pendingDeaths = [];
+  }
+
+  function showLoginError(msg) {
+    const el = document.getElementById('loginError');
+    el.textContent = msg; el.style.display = 'block';
+  }
+
+  function updateSidebarName(name) {
+    document.querySelector('.sidebar-funeraria').textContent = name;
+  }
+
+  // ── DATA LOADING ─────────────────────────────────────────────────
+  async function loadAll() {
+    await Promise.all([loadClients(), loadDeathNotifications()]);
+    updateDashboard();
+  }
+
+  async function loadClients() {
+    if (!funeralHome) return;
+    const { data } = await sb
+      .from('profiles')
+      .select('*, messages(count)')
+      .eq('funeral_home_id', funeralHome.id)
+      .order('created_at', { ascending: false });
+    allClients = data || [];
+    renderClients();
+  }
+
+  async function loadDeathNotifications() {
+    if (!funeralHome) return;
+    const { data } = await sb
+      .from('death_notifications')
+      .select('*, profiles(name, email)')
+      .eq('funeral_home_id', funeralHome.id)
+      .order('created_at', { ascending: false });
+    deathNotifications = data || [];
+    pendingDeaths = allClients.filter(c => c.status === 'active' && deathNotifications.some(d => d.user_id === c.id && !d.messages_released) === false && c.status === 'deceased');
+
+    renderDeathNotifications();
+    renderPendingPayments();
+  }
+
+  function updateDashboard() {
+    const activeCount    = allClients.filter(c => c.status === 'active').length;
+    const deceasedCount  = allClients.filter(c => c.status === 'deceased').length;
+    const totalMsgs      = allClients.reduce((s, c) => s + (c.messages?.[0]?.count || 0), 0);
+    const pendingPayments = deathNotifications.filter(d => d.payment_status === 'pending').length;
+
+    document.getElementById('stat-activos').textContent  = activeCount;
+    document.getElementById('stat-mensajes').textContent = totalMsgs;
+    document.getElementById('stat-fallecidos').textContent = deceasedCount;
+    document.getElementById('stat-cobros').textContent   = pendingPayments;
+
+    const now = new Date();
+    const mesLabel = now.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+    document.getElementById('topbar-sub').textContent = `${funeralHome?.name || 'Funeraria'} — ${mesLabel.charAt(0).toUpperCase() + mesLabel.slice(1)}`;
+
+    // Dashboard recientes
+    renderClientTable('dash-client-table', allClients.slice(0, 4));
+    renderCobros();
+  }
+
+  // ── RENDER CLIENTS ───────────────────────────────────────────────
+  function renderClients(filter = 'all', search = '') {
+    let list = allClients;
+    if (filter === 'active')   list = list.filter(c => c.status === 'active');
+    if (filter === 'deceased') list = list.filter(c => c.status === 'deceased');
+    if (search) {
+      const q = search.toLowerCase();
+      list = list.filter(c => (c.name||'').toLowerCase().includes(q) || (c.email||'').toLowerCase().includes(q));
+    }
+    renderClientTable('clientes-table', list);
+  }
+
+  function renderClientTable(tableId, clients) {
+    const wrap = document.getElementById(tableId);
+    if (!wrap) return;
+
+    const planBadge = (p) => {
+      if (p === 'basico') return `<span class="plan-badge p-basico">Básico</span>`;
+      return `<span class="plan-badge p-premium">Premium</span>`;
+    };
+    const statusBadge = (s) => {
+      if (s === 'active')   return `<span class="status-badge s-activo">Activo</span>`;
+      if (s === 'deceased') return `<span class="status-badge s-fallecido">Fallecido</span>`;
+      return `<span class="status-badge s-cobro">Cobro pendiente</span>`;
+    };
+
+    if (!clients.length) {
+      wrap.innerHTML = '<div class="empty-row">No hay clientes que coincidan con el filtro.</div>';
+      return;
+    }
+
+    let html = '';
+    clients.forEach(c => {
+      const fecha = new Date(c.created_at).toLocaleDateString('es-ES');
+      const msgCount = c.messages?.[0]?.count || 0;
+      const hasPendingPayment = deathNotifications.some(d => d.user_id === c.id && d.payment_status === 'pending');
+      const displayStatus = hasPendingPayment ? 'cobro' : c.status;
+
+      html += `<div class="table-row">
+        <div><div class="client-name">${c.name || '—'}</div><div class="client-sub">${c.email || ''}</div></div>
+        <div>${planBadge(c.plan)}</div>
+        <div class="td">${fecha}</div>
+        <div class="td">${msgCount}</div>
+        <div>${statusBadge(displayStatus)}</div>
+        <div class="row-actions">
+          ${c.status === 'active' && !hasPendingPayment
+            ? `<button class="action-btn danger" onclick="openDeathModal('${c.id}','${(c.name||'').replace(/'/g, "\\'")}')">Notificar fallecimiento</button>`
+            : `<button class="action-btn">Ver ficha</button>`
+          }
+        </div>
+      </div>`;
+    });
+    wrap.innerHTML = html;
+  }
+
+  function renderDeathNotifications() {
+    const wrap = document.getElementById('pending-deaths-table');
+    if (!wrap) return;
+    const pending = deathNotifications.filter(d => !d.messages_released);
+    if (!pending.length) {
+      wrap.innerHTML = '<div class="empty-row">No hay fallecimientos pendientes de notificar.</div>';
+      document.getElementById('alert-banner').style.display = 'none';
+      document.querySelector('.nav-badge')?.style && (document.querySelector('.nav-badge').style.display = 'none');
+      return;
+    }
+    document.getElementById('alert-banner').style.display = 'flex';
+    document.getElementById('alert-text').textContent = `${pending.length} fallecimiento${pending.length > 1 ? 's' : ''} pendiente${pending.length > 1 ? 's' : ''} de notificar`;
+
+    let html = '';
+    pending.forEach(d => {
+      const dias = Math.floor((Date.now() - new Date(d.created_at).getTime()) / 86400000);
+      html += `<div class="table-row" style="grid-template-columns:2fr 1fr 1fr 1fr 120px;">
+        <div><div class="client-name">${d.profiles?.name || '—'}</div><div class="client-sub">${d.profiles?.email || ''}</div></div>
+        <div><span class="plan-badge p-premium">Premium</span></div>
+        <div class="td">—</div>
+        <div><span style="color:var(--danger);font-size:0.82rem;font-weight:500;">${dias} día${dias !== 1 ? 's' : ''}</span></div>
+        <div class="row-actions" style="opacity:1;"><button class="btn-danger" style="font-size:0.72rem;padding:0.4rem 0.8rem;" onclick="openDeathModal('${d.user_id}','${(d.profiles?.name||'').replace(/'/g, "\\'")}')">Notificar</button></div>
+      </div>`;
+    });
+    wrap.innerHTML = html;
+  }
+
+  function renderPendingPayments() {
+    const wrap = document.getElementById('cobros-table');
+    if (!wrap) return;
+    const pending = deathNotifications.filter(d => d.payment_status === 'pending');
+    if (!pending.length) {
+      wrap.innerHTML = '<div class="empty-row">No hay cobros pendientes.</div>';
+      return;
+    }
+    let html = '';
+    pending.forEach(d => {
+      const fecha = d.death_date ? new Date(d.death_date).toLocaleDateString('es-ES') : '—';
+      html += `<div class="table-row" style="grid-template-columns:2fr 1.2fr 1fr 1fr 1fr 100px;">
+        <div><div class="client-name">${d.profiles?.name || '—'}</div><div class="client-sub">Mensajes guardados</div></div>
+        <div class="td">${d.guardian_name || '—'}</div>
+        <div class="td">${fecha}</div>
+        <div class="td" style="font-weight:500;">99€</div>
+        <div><span class="status-badge s-cobro">Pendiente</span></div>
+        <div class="row-actions" style="opacity:1;">
+          <button class="action-btn" onclick="markPaid('${d.id}')">Marcar cobrado</button>
+        </div>
+      </div>`;
+    });
+    wrap.innerHTML = html;
+  }
+
+  function renderCobros() {
+    const wrap = document.getElementById('cobros-dashboard');
+    if (!wrap) return;
+    const pending = deathNotifications.filter(d => d.payment_status === 'pending').slice(0, 3);
+    if (!pending.length) { wrap.innerHTML = '<div class="empty-row" style="padding:1rem;">Sin cobros pendientes</div>'; return; }
+    let html = '';
+    pending.forEach(d => {
+      const init = (d.profiles?.name || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+      const fecha = d.death_date ? new Date(d.death_date).toLocaleDateString('es-ES') : '—';
+      html += `<div class="cobro-item">
+        <div class="cobro-avatar">${init}</div>
+        <div><div class="cobro-name">${d.profiles?.name || '—'}</div><div class="cobro-sub">Fallecido el ${fecha}</div></div>
+        <div class="cobro-amount"><div class="cobro-price">99€</div><div class="cobro-status">Pendiente</div></div>
+      </div>`;
+    });
+    wrap.innerHTML = html;
+  }
+
+  // ── DEATH MODAL ──────────────────────────────────────────────────
+  let pendingDeathUserId = null;
+
+  function openDeathModal(userId, clientName) {
+    pendingDeathUserId = userId;
+    document.querySelector('#modal .form-select option:first-child').textContent = clientName || 'Cliente';
+    document.querySelector('#modal input[type="date"]').value = new Date().toISOString().split('T')[0];
+    document.getElementById('modal').classList.add('open');
+  }
+
+  function openModal() { document.getElementById('modal').classList.add('open'); }
+  function closeModal() { document.getElementById('modal').classList.remove('open'); pendingDeathUserId = null; }
+  function closeModalOutside(e) { if (e.target === document.getElementById('modal')) closeModal(); }
+
+  async function confirmarFallecimiento() {
+    if (!pendingDeathUserId) { closeModal(); return; }
+
+    const deathDate    = document.querySelector('#modal input[type="date"]').value;
+    const guardianName = document.querySelectorAll('#modal .form-input')[0].value.trim();
+    const guardianContact = document.querySelectorAll('#modal .form-input')[1].value.trim();
+    const planSelect = document.querySelector('#modal .form-select:last-of-type');
+    const planType = planSelect.value.includes('póstumo') ? 'premium_postumo' : planSelect.value.includes('anticipado') ? 'premium_anticipado' : 'basico';
+
+    if (!deathDate || !guardianName) {
+      showToast('Rellena la fecha de fallecimiento y el guardián.', 'error');
+      return;
+    }
+
+    const btn = document.querySelector('#modal .btn-confirm');
+    btn.disabled = true; btn.textContent = 'Procesando...';
+
+    const { data: { session } } = await sb.auth.getSession();
+
+    const res = await fetch(`${FUNCTIONS_URL}/notify-death`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`
+      },
+      body: JSON.stringify({
+        user_id: pendingDeathUserId,
+        death_date: deathDate,
+        guardian_name: guardianName,
+        guardian_contact: guardianContact,
+        plan_type: planType,
+      })
+    });
+
+    btn.disabled = false; btn.textContent = 'Confirmar fallecimiento';
+
+    if (res.ok) {
+      const { messages_released } = await res.json();
+      showToast(`✓ Fallecimiento registrado. ${messages_released} mensaje${messages_released !== 1 ? 's' : ''} de despedida enviado${messages_released !== 1 ? 's' : ''}.`, 'success');
+      closeModal();
+      await loadAll();
+    } else {
+      const { error } = await res.json();
+      showToast(`Error: ${error || 'No se pudo procesar el fallecimiento.'}`, 'error');
+    }
+  }
+
+  async function markPaid(notificationId) {
+    const { error } = await sb
+      .from('death_notifications')
+      .update({ payment_status: 'paid' })
+      .eq('id', notificationId);
+
+    if (error) { showToast('Error al actualizar el cobro.', 'error'); return; }
+    showToast('✓ Cobro marcado como pagado.', 'success');
+    await loadAll();
+  }
+
+  // ── SECTIONS ─────────────────────────────────────────────────────
   const titles = {
-    dashboard: ['Resumen', 'Funeraria Martínez — Mayo 2026'],
-    clientes: ['Clientes', '247 clientes registrados'],
-    fallecidos: ['Notificar fallecimiento', 'Gestión de fallecimientos'],
-    cobros: ['Cobros póstumos', '2 cobros pendientes de gestionar'],
-    estadisticas: ['Estadísticas', 'Rendimiento del servicio']
+    dashboard:    ['Resumen',                () => `${funeralHome?.name || 'Funeraria'} — ${new Date().toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`],
+    clientes:     ['Clientes',               () => `${allClients.length} clientes registrados`],
+    fallecidos:   ['Notificar fallecimiento', () => 'Gestión de fallecimientos'],
+    cobros:       ['Cobros póstumos',         () => `${deathNotifications.filter(d => d.payment_status === 'pending').length} cobros pendientes`],
+    estadisticas: ['Estadísticas',            () => 'Rendimiento del servicio'],
   };
 
   function showSection(name, el) {
@@ -954,17 +1222,23 @@
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
     if (el) el.classList.add('active');
     document.getElementById('topbar-title').textContent = titles[name][0];
-    document.getElementById('topbar-sub').textContent = titles[name][1];
+    document.getElementById('topbar-sub').textContent = titles[name][1]();
   }
 
   function setFilter(el) {
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     el.classList.add('active');
+    const txt = el.textContent.toLowerCase();
+    const search = document.querySelector('.search-input')?.value || '';
+    const filter = txt.includes('activo') ? 'active' : txt.includes('fallecido') ? 'deceased' : 'all';
+    renderClients(filter, search);
   }
 
-  function openModal() { document.getElementById('modal').classList.add('open'); }
-  function closeModal() { document.getElementById('modal').classList.remove('open'); }
-  function closeModalOutside(e) { if (e.target === document.getElementById('modal')) closeModal(); }
+  function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.className = `toast ${type} show`;
+    setTimeout(() => t.className = 'toast', 5000);
+  }
 </script>
 </body>
 </html>
