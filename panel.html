@@ -413,8 +413,8 @@
   }
 
   const STRIPE_PRICES = {
-    mensual: 'price_MENSUAL',
-    anual:   'price_ANUAL',
+    mensual: 'price_1TWgD9HlTrPIiyXF6CpBhjTW',
+    anual:   'price_1TWgD9HlTrPIiyXFlJxmbVpn',
     unico:   'price_1TWfWhHlTrPIiyXFwjT4IKJw',
   };
 
@@ -475,9 +475,7 @@
 
   async function upgradePremium() {
     const priceId = STRIPE_PRICES[planSeleccionado];
-    if (!priceId || priceId === 'price_MENSUAL' || priceId === 'price_ANUAL') {
-      showToast('Este plan estará disponible pronto', 'info'); return;
-    }
+    if (!priceId) { showToast('Selecciona un plan primero', 'error'); return; }
     const btn = document.getElementById('upgradeBtn');
     if (btn) { btn.textContent = 'Redirigiendo...'; btn.disabled = true; }
     try {
