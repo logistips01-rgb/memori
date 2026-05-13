@@ -170,6 +170,10 @@
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="6" cy="5" r="3"/><path d="M1 14c0-3 2-5 5-5s5 2 5 5"/><path d="M13 7l2 2-2 2"/><path d="M11 9h4"/></svg>
       Destinatarios
     </a>
+    <a class="nav-item" onclick="showSection('guardian',this)">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="5" r="3"/><path d="M2 14c0-3 2.7-5 6-5s6 2 6 5"/><path d="M8 9v2m0 2h.01"/></svg>
+      Mi guardián
+    </a>
     <a class="nav-item" onclick="showSection('plan',this)">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="1" y="3" width="14" height="10" rx="1"/><path d="M1 7h14"/></svg>
       Mi plan
@@ -257,6 +261,19 @@
         </div>
       </div>
 
+      <!-- GUARDIÁN -->
+      <div id="section-guardian">
+        <div class="card" style="max-width:520px;">
+          <div class="card-header"><h3>Mi guardián</h3></div>
+          <div style="padding:2rem;">
+            <p style="font-size:0.83rem;color:var(--ink-muted);margin-bottom:1.5rem;line-height:1.7;">Tu guardián es la persona de confianza que recibirá un aviso cuando llegue el momento de entregar tus mensajes. Puedes cambiarla en cualquier momento.</p>
+            <div class="form-row" style="margin-bottom:1rem;"><label class="form-label">Nombre del guardián</label><input type="text" class="form-input" id="gNombre" placeholder="Nombre completo"></div>
+            <div class="form-row" style="margin-bottom:1.5rem;"><label class="form-label">Email del guardián</label><input type="email" class="form-input" id="gEmail" placeholder="email@ejemplo.com"></div>
+            <button class="btn-primary" onclick="guardarGuardian()" id="guardianBtn">Guardar guardián</button>
+          </div>
+        </div>
+      </div>
+
       <!-- PLAN -->
       <div id="section-plan">
         <div id="freemiumBanner" style="display:none;background:#3D2D8F;border-radius:4px;padding:1.5rem 2rem;margin-bottom:1.5rem;color:#fff;">
@@ -312,7 +329,7 @@
 <!-- MODAL -->
 <div class="modal-overlay" id="modal" onclick="closeModalOutside(event)">
   <div class="modal">
-    <div class="modal-header"><h2>Nuevo mensaje</h2><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-header"><h2 id="modalTitle">Nuevo mensaje</h2><button class="modal-close" onclick="closeModal()">✕</button></div>
     <div class="modal-body">
       <div class="form-row"><label class="form-label">Título del mensaje</label><input type="text" class="form-input" id="fTitulo" placeholder="Ej: Para el día de tu boda"></div>
       <div class="form-row"><label class="form-label">Destinatario</label><input type="text" class="form-input" id="fDestinatario" placeholder="Nombre completo"></div>
@@ -363,7 +380,7 @@
     </div>
     <div class="modal-footer">
       <button class="logout-btn" style="width:auto;padding:0.5rem 1.25rem;" onclick="closeModal()">Cancelar</button>
-      <button class="btn-primary" onclick="guardarMensaje()">Guardar mensaje</button>
+      <button class="btn-primary" id="modalSaveBtn" onclick="guardarMensaje()">Guardar mensaje</button>
     </div>
   </div>
 </div>
@@ -422,7 +439,7 @@
   let perfilData = null;
 
   async function loadProfile(userId) {
-    const { data } = await sb.from('profiles').select('plan, created_at').eq('id', userId).single();
+    const { data } = await sb.from('profiles').select('plan, created_at, guardian_nombre, guardian_email').eq('id', userId).single();
     perfilData = data;
     const plan = data?.plan || 'basico';
     const esPremiumReal = plan === 'premium';
@@ -464,6 +481,10 @@
       if (banner) banner.style.display = 'block';
       if (planesGrid) { planesGrid.style.display = 'block'; seleccionarPlan('mensual'); }
     }
+
+    // Rellenar campos del guardián
+    if (data?.guardian_nombre) document.getElementById('gNombre').value = data.guardian_nombre;
+    if (data?.guardian_email)  document.getElementById('gEmail').value  = data.guardian_email;
 
     // Re-renderizar mensajes ahora que perfilData está disponible
     if (mensajes.length > 0) renderMensajes();
@@ -602,6 +623,7 @@
         <td><span class="badge ${stClass(m.estado)}">${stLabel(m.estado)}</span></td>
         <td>
           ${m.storage_path ? `<button class="link-btn" onclick="verArchivo('${m.storage_path}')">Ver</button>` : ''}
+          <button class="link-btn" onclick="editarMensaje('${m.id}')">Editar</button>
           ${m.estado === 'pendiente' && m.email_destinatario ? `<button class="link-btn" onclick="entregarMensaje('${m.id}')">Entregar</button>` : ''}
           <button class="link-btn" onclick="eliminarMensaje('${m.id}')">Eliminar</button>
         </td>
@@ -792,17 +814,67 @@
       nota_guardian:      nota || null
     };
 
-    const { error } = await sb.from('mensajes').insert(row);
+    let error;
+    if (editandoId) {
+      ({ error } = await sb.from('mensajes').update(row).eq('id', editandoId));
+    } else {
+      ({ error } = await sb.from('mensajes').insert(row));
+    }
     if (error) { showToast('Error al guardar: ' + error.message, 'error'); return; }
-    showToast('Mensaje guardado', 'success');
+    showToast(editandoId ? 'Mensaje actualizado' : 'Mensaje guardado', 'success');
     closeModal();
-    resetModal();
     loadMensajes();
   }
 
-  function openModal() { document.getElementById('modal').classList.add('open'); }
-  function closeModal() { document.getElementById('modal').classList.remove('open'); }
+  async function guardarGuardian() {
+    const nombre = document.getElementById('gNombre').value.trim();
+    const email  = document.getElementById('gEmail').value.trim();
+    if (!nombre || !email) { showToast('Nombre y email son obligatorios', 'error'); return; }
+    const btn = document.getElementById('guardianBtn');
+    btn.textContent = 'Guardando...'; btn.disabled = true;
+    const { error } = await sb.from('profiles')
+      .update({ guardian_nombre: nombre, guardian_email: email })
+      .eq('id', user.id);
+    btn.textContent = 'Guardar guardián'; btn.disabled = false;
+    if (error) { showToast('Error: ' + error.message, 'error'); return; }
+    showToast('Guardián guardado', 'success');
+  }
+
+  let editandoId = null;
+
+  function openModal() {
+    editandoId = null;
+    document.getElementById('modalTitle').textContent = 'Nuevo mensaje';
+    document.getElementById('modalSaveBtn').textContent = 'Guardar mensaje';
+    document.getElementById('modal').classList.add('open');
+  }
+  function closeModal() { document.getElementById('modal').classList.remove('open'); resetModal(); }
   function closeModalOutside(e) { if(e.target===document.getElementById('modal')) closeModal(); }
+
+  function editarMensaje(id) {
+    const m = mensajes.find(x => x.id === id);
+    if (!m) return;
+    editandoId = id;
+    document.getElementById('modalTitle').textContent = 'Editar mensaje';
+    document.getElementById('modalSaveBtn').textContent = 'Guardar cambios';
+    document.getElementById('fTitulo').value      = m.titulo || '';
+    document.getElementById('fDestinatario').value = m.destinatario || '';
+    document.getElementById('fEmail').value        = m.email_destinatario || '';
+    document.getElementById('fTipo').value         = m.tipo_entrega || 'evento';
+    document.getElementById('fEvento').value       = m.evento || '';
+    document.getElementById('fFecha').value        = m.fecha_entrega || '';
+    document.getElementById('fNota').value         = m.nota_guardian || '';
+    document.getElementById('fTexto').value        = m.contenido_texto || '';
+    toggleFecha();
+    if (m.formato === 'texto') {
+      selectFmt(document.querySelector(`[onclick*="selectFmt"][onclick*="texto"]`), 'texto');
+    } else if (m.formato === 'audio') {
+      selectFmt(document.querySelector(`[onclick*="selectFmt"][onclick*="audio"]`), 'audio');
+    } else {
+      selectFmt(document.querySelector(`[onclick*="selectFmt"][onclick*="video"]`), 'video');
+    }
+    document.getElementById('modal').classList.add('open');
+  }
 
   function resetModal() {
     ['fTitulo','fDestinatario','fEmail','fEvento','fNota','fTexto'].forEach(id=>document.getElementById(id).value='');
@@ -824,6 +896,7 @@
     dashboard: ['Inicio', ()=>`Bienvenido de vuelta, ${user.name.split(' ')[0]}`],
     mensajes:  ['Mis mensajes', ()=>`${mensajes.length} mensajes guardados`],
     destinatarios: ['Destinatarios', ()=>'Personas que recibirán tus mensajes'],
+    guardian: ['Mi guardián', ()=>'Persona de confianza para la entrega de mensajes'],
     plan: ['Mi plan', ()=>document.getElementById('userPlanLabel')?.textContent || 'Mi plan']
   };
 
