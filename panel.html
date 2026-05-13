@@ -268,12 +268,15 @@
               <div id="planBadge" style="font-size:0.82rem;color:var(--success);font-weight:500;"></div>
               <div id="planSubtexto" style="font-size:0.78rem;color:#5a8a22;margin-top:0.2rem;"></div>
             </div>
-            <ul style="list-style:none;display:flex;flex-direction:column;gap:0.75rem;">
+            <ul style="list-style:none;display:flex;flex-direction:column;gap:0.75rem;margin-bottom:1.5rem;">
               <li style="font-size:0.83rem;color:var(--ink-light);display:flex;gap:0.6rem;"><span style="color:var(--gold);">●</span> Mensajes en vídeo, audio y texto</li>
               <li style="font-size:0.83rem;color:var(--ink-light);display:flex;gap:0.6rem;"><span style="color:var(--gold);">●</span> Almacenamiento seguro en la nube</li>
               <li style="font-size:0.83rem;color:var(--ink-light);display:flex;gap:0.6rem;"><span style="color:var(--gold);">●</span> Fechas programadas y eventos sin fecha</li>
               <li style="font-size:0.83rem;color:var(--ink-light);display:flex;gap:0.6rem;"><span style="color:var(--gold);">●</span> Sistema de guardianes</li>
             </ul>
+            <button id="upgradeBtn" class="btn-primary" onclick="upgradePremium()" style="display:none;width:100%;justify-content:center;">
+              Activar Plan Premium — Pago único
+            </button>
           </div>
         </div>
       </div>
@@ -352,6 +355,15 @@
   let mensajes = [];
 
   window.onload = async () => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('pago') === 'ok') {
+      history.replaceState({}, '', window.location.pathname);
+      showToast('¡Pago completado! Tu plan se actualizará en breve.', 'success');
+    } else if (params.get('pago') === 'cancelado') {
+      history.replaceState({}, '', window.location.pathname);
+      showToast('Pago cancelado.', 'info');
+    }
+
     const { data: { session } } = await sb.auth.getSession();
     if (session) {
       setUser(session.user);
@@ -399,6 +411,33 @@
     document.getElementById('planSubtexto').textContent = esPremium
       ? 'Tu pago cubre la custodia indefinida de todos tus mensajes'
       : '';
+    const upgradeBtn = document.getElementById('upgradeBtn');
+    if (upgradeBtn) upgradeBtn.style.display = esPremium ? 'none' : 'block';
+  }
+
+  async function upgradePremium() {
+    const btn = document.getElementById('upgradeBtn');
+    if (btn) { btn.textContent = 'Redirigiendo...'; btn.disabled = true; }
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      const res = await fetch(
+        `${SUPABASE_URL}/functions/v1/stripe-checkout`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+            'apikey': SUPABASE_ANON_KEY,
+          },
+        }
+      );
+      const { url, error } = await res.json();
+      if (error) throw new Error(error);
+      window.location.href = url;
+    } catch (err) {
+      showToast('Error al iniciar el pago: ' + err.message, 'error');
+      if (btn) { btn.textContent = 'Activar Plan Premium'; btn.disabled = false; }
+    }
   }
 
   async function handleLogin() {
