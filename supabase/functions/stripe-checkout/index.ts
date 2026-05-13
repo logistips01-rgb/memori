@@ -31,7 +31,6 @@ Deno.serve(async (req) => {
       ? await req.json() : {};
     const priceId = body.price_id || Deno.env.get('STRIPE_PRICE_ID')!;
 
-    // Determinar modo según el price (suscripciones vs pago único)
     const priceInfo = await stripe.prices.retrieve(priceId);
     const mode = priceInfo.recurring ? 'subscription' : 'payment';
 

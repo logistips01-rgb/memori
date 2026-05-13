@@ -34,7 +34,6 @@ Deno.serve(async (req) => {
     }
   }
 
-  // Suscripción cancelada o pago fallido → volver a básico
   if (event.type === 'customer.subscription.deleted') {
     const sub = event.data.object as Stripe.Subscription;
     const customerId = sub.customer as string;

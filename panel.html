@@ -262,7 +262,7 @@
         <div id="freemiumBanner" style="display:none;background:#3D2D8F;border-radius:4px;padding:1.5rem 2rem;margin-bottom:1.5rem;color:#fff;">
           <div style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:300;margin-bottom:0.4rem;">Tu periodo gratuito ha terminado</div>
           <div style="font-size:0.82rem;color:rgba(255,255,255,0.7);margin-bottom:1.25rem;">Tu primer mensaje permanece accesible. Activa un plan para desbloquear el resto.</div>
-          <button onclick="showSection('plan',document.querySelector('[onclick*=plan]'))" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;padding:0.5rem 1.25rem;border-radius:3px;font-size:0.82rem;cursor:pointer;">Ver planes →</button>
+          <button onclick="showSection('plan',null)" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;padding:0.5rem 1.25rem;border-radius:3px;font-size:0.82rem;cursor:pointer;">Ver planes →</button>
         </div>
         <div id="freemiumAviso" style="display:none;background:var(--gold-light);border:1px solid var(--gold);border-radius:4px;padding:1rem 1.5rem;margin-bottom:1.5rem;font-size:0.83rem;color:#7a5c2e;"></div>
 
@@ -270,7 +270,7 @@
           <div class="card-header"><h3>Mi plan actual</h3></div>
           <div style="padding:2rem;">
             <div id="planNombre" style="font-family:'Cormorant Garamond',serif;font-size:2.5rem;font-weight:300;color:var(--purple);margin-bottom:0.25rem;">Básico</div>
-            <div id="planDescripcion" style="font-size:0.85rem;color:var(--ink-muted);margin-bottom:1.5rem;">Plan gratuito</div>
+            <div id="planDescripcion" style="font-size:0.85rem;color:var(--ink-muted);margin-bottom:1.5rem;">Plan gratuito · 3 meses de prueba</div>
             <div style="background:var(--success-bg);border-radius:3px;padding:1rem;">
               <div id="planBadge" style="font-size:0.82rem;color:var(--success);font-weight:500;"></div>
               <div id="planSubtexto" style="font-size:0.78rem;color:#5a8a22;margin-top:0.2rem;"></div>
@@ -564,14 +564,13 @@
   function estaDesbloqueado(idx) {
     if (!perfilData) return true;
     if (perfilData.plan === 'premium') return true;
-    if (idx === 0) return true; // primer mensaje siempre libre
+    if (idx === 0) return true;
     const dias = Math.floor((Date.now() - new Date(perfilData.created_at)) / 86400000);
     return dias < 90;
   }
 
   function renderMensajes() {
     const tbody = document.getElementById('msgTableBody');
-    // Ordenar por created_at asc para que el primero sea el más antiguo (el gratuito)
     const ordenados = [...mensajes].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
     const idxLibre = new Set(ordenados.slice(0, 1).map(m => m.id));
 
