@@ -464,6 +464,9 @@
       if (banner) banner.style.display = 'block';
       if (planesGrid) { planesGrid.style.display = 'block'; seleccionarPlan('mensual'); }
     }
+
+    // Re-renderizar mensajes ahora que perfilData está disponible
+    if (mensajes.length > 0) renderMensajes();
   }
 
   function seleccionarPlan(tipo) {
