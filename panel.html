@@ -24,198 +24,152 @@
   .login-box { background: var(--white); border-radius: 4px; padding: 2.5rem; width: 360px; text-align: center; }
   .login-box h2 { font-size: 1rem; font-weight: 500; color: var(--ink); margin-bottom: 0.5rem; }
   .login-box p { font-size: 0.8rem; color: var(--ink-muted); margin-bottom: 2rem; line-height: 1.6; }
-  .google-btn { width: 100%; padding: 0.8rem; background: var(--white); border: 1px solid var(--border); border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 500; color: var(--ink); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.75rem; transition: background 0.2s; }
-  .google-btn:hover { background: var(--cream); border-color: var(--purple-mid); }
-  .google-btn svg { width: 18px; height: 18px; }
-  .login-note { font-size: 0.7rem; color: rgba(255,255,255,0.35); margin-top: 1.5rem; }
+  .btn-google { display: inline-flex; align-items: center; gap: 0.75rem; background: var(--white); border: 1.5px solid var(--border); border-radius: 3px; padding: 0.75rem 1.5rem; font-size: 0.85rem; font-weight: 500; color: var(--ink); cursor: pointer; transition: box-shadow 0.2s; width: 100%; justify-content: center; }
+  .btn-google:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+  .btn-google svg { flex-shrink: 0; }
 
-  /* SIDEBAR */
-  .sidebar { width: var(--sidebar-w); background: var(--purple); min-height: 100vh; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; z-index: 50; }
-  .sidebar-logo { padding: 2rem 1.5rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
-  .sidebar-logo span { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 400; color: var(--white); letter-spacing: 0.08em; }
-  .sidebar-logo p { font-size: 0.7rem; color: rgba(255,255,255,0.4); margin-top: 0.2rem; }
-  .sidebar-nav { padding: 1.5rem 0; flex: 1; }
-  .nav-label { font-size: 0.62rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.3); padding: 0 1.5rem; margin-bottom: 0.5rem; margin-top: 1.25rem; display: block; }
-  .nav-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 1.5rem; font-size: 0.85rem; color: rgba(255,255,255,0.65); cursor: pointer; transition: background 0.15s, color 0.15s; border-left: 2px solid transparent; text-decoration: none; }
-  .nav-item:hover { background: rgba(255,255,255,0.07); color: var(--white); }
-  .nav-item.active { background: rgba(255,255,255,0.1); color: var(--white); border-left-color: var(--gold); }
-  .nav-item svg { width: 15px; height: 15px; flex-shrink: 0; }
-  .nav-badge { margin-left: auto; background: var(--gold); color: var(--ink); font-size: 0.65rem; font-weight: 500; padding: 0.1rem 0.45rem; border-radius: 10px; }
-  .sidebar-bottom { padding: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); }
-  .user-info { display: flex; align-items: center; gap: 0.75rem; }
-  .user-avatar { width: 34px; height: 34px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 500; color: var(--ink); flex-shrink: 0; overflow: hidden; }
+  /* LAYOUT */
+  .sidebar { width: var(--sidebar-w); background: var(--white); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; top: 0; bottom: 0; left: 0; }
+  .sidebar-logo { padding: 1.5rem 1.5rem 1rem; border-bottom: 1px solid var(--border); }
+  .sidebar-logo h1 { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 300; color: var(--purple); letter-spacing: 0.08em; }
+  .sidebar-logo p  { font-size: 0.65rem; color: var(--ink-muted); letter-spacing: 0.1em; margin-top: 0.1rem; }
+  .sidebar-nav { flex: 1; padding: 1rem 0.75rem; display: flex; flex-direction: column; gap: 0.25rem; overflow-y: auto; }
+  .nav-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem 0.75rem; border-radius: 3px; font-size: 0.82rem; color: var(--ink-light); cursor: pointer; text-decoration: none; transition: background 0.15s; }
+  .nav-item:hover { background: var(--purple-light); color: var(--purple); }
+  .nav-item.active { background: var(--purple-light); color: var(--purple); font-weight: 500; }
+  .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .nav-section-label { font-size: 0.6rem; letter-spacing: 0.12em; color: var(--ink-muted); text-transform: uppercase; padding: 0.75rem 0.75rem 0.25rem; }
+  .sidebar-bottom { padding: 1rem 0.75rem; border-top: 1px solid var(--border); }
+  .user-info { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
+  .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--purple-light); color: var(--purple); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 500; overflow: hidden; flex-shrink: 0; }
   .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
-  .user-name { font-size: 0.82rem; color: var(--white); }
+  .user-name { font-size: 0.8rem; font-weight: 500; color: var(--ink); }
   .user-plan { font-size: 0.68rem; color: var(--gold); }
-  .logout-btn { margin-top: 0.75rem; width: 100%; padding: 0.5rem; background: none; border: 1px solid rgba(255,255,255,0.15); border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 0.72rem; color: rgba(255,255,255,0.4); cursor: pointer; transition: all 0.15s; }
-  .logout-btn:hover { border-color: rgba(255,255,255,0.4); color: var(--white); }
+  .logout-btn { width: 100%; padding: 0.5rem; border: 1px solid var(--border); border-radius: 3px; background: none; font-size: 0.78rem; color: var(--ink-muted); cursor: pointer; transition: all 0.15s; }
+  .logout-btn:hover { border-color: var(--purple); color: var(--purple); }
 
   /* MAIN */
-  .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; }
-  .topbar { background: var(--white); border-bottom: 1px solid var(--border); padding: 1rem 2.5rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; }
-  .topbar-title { font-size: 1rem; font-weight: 500; color: var(--ink); }
-  .topbar-sub { font-size: 0.78rem; color: var(--ink-muted); margin-top: 0.1rem; }
-  .btn-new { background: var(--purple); color: var(--white); padding: 0.6rem 1.3rem; border: none; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 0.5rem; }
-  .btn-new:hover { background: #2d1f6e; }
-  .content { padding: 2.5rem; flex: 1; }
+  .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+  .topbar { padding: 1.25rem 2rem; border-bottom: 1px solid var(--border); background: var(--white); display: flex; align-items: center; justify-content: space-between; }
+  .topbar-title { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 300; color: var(--purple); }
+  .topbar-sub { font-size: 0.75rem; color: var(--ink-muted); margin-top: 0.1rem; }
+  .btn-primary { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--purple); color: var(--white); border: none; border-radius: 3px; padding: 0.6rem 1.25rem; font-size: 0.82rem; font-weight: 500; cursor: pointer; transition: opacity 0.15s; }
+  .btn-primary:hover { opacity: 0.88; }
 
-  /* BANNERS */
-  .status-banner { background: var(--success-bg); border: 1px solid rgba(59,109,17,0.2); border-radius: 4px; padding: 1rem 1.5rem; display: flex; align-items: center; gap: 0.75rem; margin-bottom: 2rem; }
-  .status-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; flex-shrink: 0; animation: pulse 2s ease-in-out infinite; }
-  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
-  .status-text { font-size: 0.85rem; color: var(--success); font-weight: 500; }
-  .status-sub { font-size: 0.78rem; color: #5a8a22; margin-left: auto; }
-
-  /* STATS */
-  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2.5rem; }
-  .stat-card { background: var(--white); border: 1px solid var(--border); border-radius: 4px; padding: 1.25rem 1.5rem; transition: border-color 0.2s; }
-  .stat-card:hover { border-color: var(--purple-mid); }
-  .stat-label { font-size: 0.72rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 0.6rem; }
-  .stat-value { font-family: 'Cormorant Garamond', serif; font-size: 2.4rem; font-weight: 300; color: var(--purple); line-height: 1; margin-bottom: 0.25rem; }
-  .stat-desc { font-size: 0.72rem; color: var(--ink-muted); }
-
-  /* SECTION HEADER */
-  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
-  .section-header h2 { font-size: 0.88rem; font-weight: 500; color: var(--ink); }
-  .section-header a { font-size: 0.75rem; color: var(--purple-mid); text-decoration: none; cursor: pointer; }
-
-  /* TABLE */
-  .messages-table { background: var(--white); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; margin-bottom: 2.5rem; }
-  .table-head { display: grid; grid-template-columns: 2fr 1.5fr 1.5fr 1fr 1fr 60px; padding: 0.75rem 1.5rem; background: var(--cream); border-bottom: 1px solid var(--border); }
-  .th { font-size: 0.68rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-muted); }
-  .table-row { display: grid; grid-template-columns: 2fr 1.5fr 1.5fr 1fr 1fr 60px; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); align-items: center; transition: background 0.15s; }
-  .table-row:last-child { border-bottom: none; }
-  .table-row:hover { background: var(--purple-light); }
-  .msg-title { font-size: 0.85rem; font-weight: 500; color: var(--ink); margin-bottom: 0.15rem; }
-  .msg-sub { font-size: 0.72rem; color: var(--ink-muted); }
-  .td { font-size: 0.82rem; color: var(--ink-light); }
-  .format-badge { display: inline-flex; align-items: center; font-size: 0.68rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.2rem 0.5rem; border-radius: 2px; }
-  .format-video { background: #E6F1FB; color: #185FA5; }
-  .format-audio { background: var(--gold-light); color: #714f0b; }
-  .format-text { background: var(--purple-light); color: var(--purple); }
-  .status-badge { display: inline-flex; align-items: center; font-size: 0.68rem; font-weight: 500; padding: 0.2rem 0.6rem; border-radius: 2px; }
-  .status-programado { background: var(--success-bg); color: var(--success); }
-  .status-evento { background: var(--gold-light); color: #714f0b; }
-  .status-despedida { background: var(--purple-light); color: var(--purple); }
-  .row-actions { display: flex; gap: 0.4rem; justify-content: flex-end; }
-  .action-btn { width: 28px; height: 28px; border: 1px solid var(--border); border-radius: 2px; background: var(--white); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: border-color 0.15s; text-decoration: none; }
-  .action-btn:hover { border-color: var(--purple-mid); background: var(--purple-light); }
-  .action-btn svg { width: 12px; height: 12px; }
-
-  /* BOTTOM GRID */
-  .bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-  .card { background: var(--white); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
-  .card-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-  .card-header h3 { font-size: 0.85rem; font-weight: 500; color: var(--ink); }
-  .card-header span { font-size: 0.72rem; color: var(--purple-mid); cursor: pointer; }
-  .dest-item { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); transition: background 0.15s; }
-  .dest-item:last-child { border-bottom: none; }
-  .dest-item:hover { background: var(--purple-light); }
-  .dest-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 500; flex-shrink: 0; }
-  .dest-name { font-size: 0.83rem; font-weight: 500; color: var(--ink); margin-bottom: 0.1rem; }
-  .dest-sub { font-size: 0.72rem; color: var(--ink-muted); }
-  .dest-count { margin-left: auto; font-size: 0.72rem; color: var(--ink-muted); background: var(--cream); padding: 0.2rem 0.5rem; border-radius: 2px; border: 1px solid var(--border); }
-
-  /* MODAL */
-  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(26,22,18,0.5); z-index: 200; align-items: center; justify-content: center; }
-  .modal-overlay.open { display: flex; }
-  .modal { background: var(--white); border-radius: 4px; width: 580px; max-height: 90vh; overflow-y: auto; box-shadow: 0 24px 60px rgba(0,0,0,0.2); }
-  .modal-header { padding: 1.5rem 2rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-  .modal-header h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 300; color: var(--purple); }
-  .modal-close { width: 28px; height: 28px; border: 1px solid var(--border); border-radius: 2px; background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; color: var(--ink-muted); }
-  .modal-close:hover { background: var(--cream); }
-  .modal-body { padding: 2rem; }
-  .form-row { margin-bottom: 1.2rem; }
-  .form-label { display: block; font-size: 0.72rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-light); margin-bottom: 0.4rem; }
-  .form-input, .form-select, .form-textarea { width: 100%; padding: 0.7rem 0.9rem; border: 1px solid var(--border); border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; color: var(--ink); background: var(--cream); outline: none; transition: border-color 0.2s; }
-  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--purple-mid); background: var(--white); }
-  .form-textarea { resize: vertical; min-height: 80px; }
-  .format-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1.2rem; }
-  .format-opt { border: 1px solid var(--border); border-radius: 3px; padding: 0.8rem; text-align: center; cursor: pointer; transition: border-color 0.15s, background 0.15s; }
-  .format-opt:hover { border-color: var(--purple-mid); background: var(--purple-light); }
-  .format-opt.selected { border-color: var(--purple); background: var(--purple-light); }
-  .format-opt-icon { font-size: 1.3rem; margin-bottom: 0.3rem; }
-  .format-opt-label { font-size: 0.75rem; color: var(--ink-light); font-weight: 500; }
-
-  /* UPLOAD */
-  .upload-area { border: 2px dashed var(--border); border-radius: 4px; padding: 2rem; text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; position: relative; }
-  .upload-area:hover { border-color: var(--purple-mid); background: var(--purple-light); }
-  .upload-area input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-  .upload-icon { font-size: 2rem; margin-bottom: 0.5rem; }
-  .upload-text { font-size: 0.85rem; color: var(--ink-light); margin-bottom: 0.25rem; }
-  .upload-sub { font-size: 0.72rem; color: var(--ink-muted); }
-
-  /* RECORD */
-  .record-area { border: 1px solid var(--border); border-radius: 4px; padding: 1.5rem; text-align: center; margin-bottom: 1rem; }
-  .record-btn { width: 56px; height: 56px; border-radius: 50%; background: #cc3333; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; transition: background 0.2s; }
-  .record-btn:hover { background: #a82222; }
-  .record-btn.recording { background: #333; animation: recPulse 1s ease-in-out infinite; }
-  .record-btn svg { width: 20px; height: 20px; }
-  @keyframes recPulse { 0%,100%{box-shadow:0 0 0 0 rgba(204,51,51,0.4);} 50%{box-shadow:0 0 0 12px rgba(204,51,51,0);} }
-  .record-time { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; color: var(--ink-muted); margin-bottom: 0.5rem; }
-  .record-hint { font-size: 0.75rem; color: var(--ink-muted); }
-
-  /* PROGRESS */
-  .progress-wrap { margin-top: 1rem; }
-  .progress-label { font-size: 0.75rem; color: var(--ink-light); margin-bottom: 0.4rem; display: flex; justify-content: space-between; }
-  .progress-bar { height: 4px; background: var(--cream); border-radius: 2px; overflow: hidden; border: 1px solid var(--border); }
-  .progress-fill { height: 100%; background: var(--purple); border-radius: 2px; transition: width 0.3s ease; width: 0%; }
-
-  .modal-footer { padding: 1.25rem 2rem; border-top: 1px solid var(--border); display: flex; gap: 0.75rem; justify-content: flex-end; }
-  .btn-cancel { padding: 0.65rem 1.3rem; border: 1px solid var(--border); border-radius: 2px; background: none; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; color: var(--ink-light); cursor: pointer; }
-  .btn-cancel:hover { background: var(--cream); }
-  .btn-save { padding: 0.65rem 1.5rem; background: var(--purple); border: none; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 500; color: var(--white); cursor: pointer; transition: background 0.2s; }
-  .btn-save:hover { background: #2d1f6e; }
-  .btn-save:disabled { background: var(--ink-muted); cursor: not-allowed; }
-
-  /* TOAST */
-  .toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--ink); color: var(--white); padding: 0.9rem 1.5rem; border-radius: 3px; font-size: 0.82rem; z-index: 500; transform: translateY(100px); opacity: 0; transition: transform 0.3s ease, opacity 0.3s ease; max-width: 320px; line-height: 1.5; }
-  .toast.show { transform: translateY(0); opacity: 1; }
-  .toast.success { border-left: 3px solid var(--gold); }
-  .toast.error { border-left: 3px solid #cc3333; }
-
-  .empty-state { padding: 3rem; text-align: center; color: var(--ink-muted); font-size: 0.85rem; }
-
+  /* CONTENT */
+  .content { padding: 2rem; flex: 1; }
   .section-panels > div { display: none; }
   .section-panels > div.active { display: block; }
+
+  /* CARDS */
+  .card { background: var(--white); border: 1px solid var(--border); border-radius: 4px; }
+  .card-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .card-header h3 { font-size: 0.9rem; font-weight: 500; color: var(--ink); }
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+  .stat-card { background: var(--white); border: 1px solid var(--border); border-radius: 4px; padding: 1.25rem 1.5rem; }
+  .stat-label { font-size: 0.7rem; color: var(--ink-muted); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.5rem; }
+  .stat-value { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 300; color: var(--purple); line-height: 1; }
+  .stat-sub { font-size: 0.72rem; color: var(--ink-muted); margin-top: 0.3rem; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+
+  /* TABLE */
+  .msg-table { width: 100%; border-collapse: collapse; }
+  .msg-table th { font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-muted); padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--border); font-weight: 400; }
+  .msg-table td { padding: 0.9rem 1rem; border-bottom: 1px solid var(--border); font-size: 0.82rem; color: var(--ink-light); vertical-align: middle; }
+  .msg-table tr:last-child td { border-bottom: none; }
+  .msg-table tr:hover td { background: var(--cream); }
+  .badge { display: inline-flex; align-items: center; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.7rem; font-weight: 500; }
+  .badge-pendiente { background: var(--gold-light); color: #7a5c2e; }
+  .badge-enviado { background: #EAF3DE; color: var(--success); }
+  .badge-archivado { background: var(--purple-light); color: var(--purple); }
+  .link-btn { background: none; border: none; color: var(--purple-mid); font-size: 0.78rem; cursor: pointer; padding: 0.2rem 0.4rem; border-radius: 3px; transition: background 0.15s; }
+  .link-btn:hover { background: var(--purple-light); }
+  .empty-state { padding: 3rem; text-align: center; color: var(--ink-muted); font-size: 0.85rem; }
+
+  /* DEST CARDS */
+  .dest-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
+  .dest-card { background: var(--white); border: 1px solid var(--border); border-radius: 4px; padding: 1.25rem; }
+  .dest-name { font-size: 0.9rem; font-weight: 500; color: var(--ink); margin-bottom: 0.2rem; }
+  .dest-email { font-size: 0.75rem; color: var(--ink-muted); margin-bottom: 0.75rem; }
+  .dest-count { font-size: 0.72rem; color: var(--purple); background: var(--purple-light); display: inline-block; padding: 0.15rem 0.5rem; border-radius: 20px; }
+
+  /* MODAL */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: none; align-items: center; justify-content: center; z-index: 100; padding: 1rem; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--white); border-radius: 4px; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; }
+  .modal-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .modal-header h2 { font-size: 1rem; font-weight: 500; }
+  .modal-close { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--ink-muted); padding: 0.2rem 0.4rem; }
+  .modal-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; }
+  .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--border); display: flex; gap: 0.75rem; justify-content: flex-end; }
+  .form-label { display: block; font-size: 0.75rem; font-weight: 500; color: var(--ink-light); margin-bottom: 0.4rem; letter-spacing: 0.03em; }
+  .form-row { display: flex; flex-direction: column; }
+  .form-input, .form-select, .form-textarea { width: 100%; padding: 0.6rem 0.75rem; border: 1px solid var(--border); border-radius: 3px; font-size: 0.83rem; font-family: inherit; color: var(--ink); background: var(--white); transition: border-color 0.15s; }
+  .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--purple-mid); }
+  .form-textarea { resize: vertical; min-height: 100px; }
+
+  /* UPLOAD */
+  .upload-area { border: 1.5px dashed var(--border); border-radius: 3px; padding: 2rem; text-align: center; cursor: pointer; transition: border-color 0.15s; }
+  .upload-area:hover, .upload-area.drag { border-color: var(--purple-mid); }
+  #uploadText { font-size: 0.8rem; color: var(--ink-muted); }
+  .format-options { display: flex; gap: 0.75rem; }
+  .format-opt { flex: 1; border: 1.5px solid var(--border); border-radius: 3px; padding: 0.75rem; text-align: center; cursor: pointer; transition: all 0.15s; }
+  .format-opt.selected { border-color: var(--purple); background: var(--purple-light); }
+  .format-opt-icon { font-size: 1.3rem; margin-bottom: 0.25rem; }
+  .format-opt-label { font-size: 0.72rem; color: var(--ink-light); }
+
+  /* RECORD */
+  .record-area { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; padding: 1.5rem; background: var(--cream); border-radius: 3px; }
+  .record-btn { width: 56px; height: 56px; border-radius: 50%; background: var(--purple); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+  .record-btn.recording { background: #c0392b; animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
+  #recordTime { font-size: 1.2rem; font-family: monospace; color: var(--ink); }
+  #recordHint { font-size: 0.72rem; color: var(--ink-muted); }
+
+  /* TOAST */
+  .toast-container { position: fixed; bottom: 1.5rem; right: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; z-index: 999; }
+  .toast { padding: 0.75rem 1.25rem; border-radius: 3px; font-size: 0.82rem; color: var(--white); animation: slide-in 0.3s ease; max-width: 320px; }
+  .toast.success { background: var(--success); }
+  .toast.error   { background: #c0392b; }
+  .toast.info    { background: var(--purple); }
+  @keyframes slide-in { from{transform:translateX(100%);opacity:0} to{transform:translateX(0);opacity:1} }
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
+<!-- LOGIN SCREEN -->
 <div class="login-screen" id="loginScreen">
-  <div class="login-logo">memori</div>
-  <div class="login-tagline">Legado · Memoria · Presencia</div>
+  <div class="login-logo">Memori</div>
+  <div class="login-tagline">MENSAJES QUE TRASCIENDEN</div>
   <div class="login-box">
     <h2>Accede a tu panel</h2>
-    <p>Inicia sesión con tu cuenta de Google para acceder a tus mensajes de forma segura.</p>
-    <button class="google-btn" onclick="handleLogin()">
-      <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+    <p>Inicia sesión para gestionar tus mensajes y destinatarios.</p>
+    <button class="btn-google" onclick="handleLogin()">
+      <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z"/></svg>
       Continuar con Google
     </button>
   </div>
-  <p class="login-note">Tus mensajes están protegidos y solo tú puedes acceder a ellos.</p>
 </div>
 
 <!-- SIDEBAR -->
 <aside class="sidebar">
-  <div class="sidebar-logo"><span>memori</span><p>Panel personal</p></div>
+  <div class="sidebar-logo">
+    <h1>Memori</h1>
+    <p>MENSAJES QUE TRASCIENDEN</p>
+  </div>
   <nav class="sidebar-nav">
-    <span class="nav-label">Principal</span>
     <a class="nav-item active" onclick="showSection('dashboard',this)">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="1" y="1" width="6" height="6" rx="0.5"/><rect x="9" y="1" width="6" height="6" rx="0.5"/><rect x="1" y="9" width="6" height="6" rx="0.5"/><rect x="9" y="9" width="6" height="6" rx="0.5"/></svg>
       Inicio
     </a>
     <a class="nav-item" onclick="showSection('mensajes',this)">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 3h12v9a1 1 0 01-1 1H3a1 1 0 01-1-1V3z"/><path d="M2 3l6 5 6-5"/></svg>
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 2h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H4l-3 2V3a1 1 0 0 1 1-1z"/></svg>
       Mis mensajes
-      <span class="nav-badge" id="msgCount">0</span>
     </a>
     <a class="nav-item" onclick="showSection('destinatarios',this)">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="6" cy="5" r="3"/><path d="M1 13c0-3 2-5 5-5s5 2 5 5"/></svg>
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="6" cy="5" r="3"/><path d="M1 14c0-3 2-5 5-5s5 2 5 5"/><path d="M13 7l2 2-2 2"/><path d="M11 9h4"/></svg>
       Destinatarios
     </a>
-    <span class="nav-label">Cuenta</span>
     <a class="nav-item" onclick="showSection('plan',this)">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="1" y="3" width="14" height="10" rx="1"/><path d="M1 7h14"/></svg>
       Mi plan
@@ -224,7 +178,7 @@
   <div class="sidebar-bottom">
     <div class="user-info">
       <div class="user-avatar" id="userAvatar">?</div>
-      <div><div class="user-name" id="userName">...</div><div class="user-plan">Plan Premium</div></div>
+      <div><div class="user-name" id="userName">...</div><div class="user-plan" id="userPlanLabel">Plan Básico</div></div>
     </div>
     <button class="logout-btn" onclick="handleLogout()">Cerrar sesión</button>
   </div>
@@ -237,56 +191,70 @@
       <div class="topbar-title" id="topbarTitle">Inicio</div>
       <div class="topbar-sub" id="topbarSub">Bienvenido de vuelta</div>
     </div>
-    <button class="btn-new" onclick="openModal()">
-      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 1v14M1 8h14"/></svg>
+    <button class="btn-primary" onclick="openModal()">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><line x1="8" y1="2" x2="8" y2="14"/><line x1="2" y1="8" x2="14" y2="8"/></svg>
       Nuevo mensaje
     </button>
   </div>
-
   <div class="content">
     <div class="section-panels">
 
       <!-- DASHBOARD -->
       <div id="section-dashboard" class="active">
-        <div class="status-banner">
-          <div class="status-dot"></div>
-          <span class="status-text">Tus mensajes están seguros</span>
-          <span class="status-sub" id="lastCheck">Comprobando...</span>
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-label">Mensajes guardados</div>
+            <div class="stat-value" id="dashTotal">0</div>
+            <div class="stat-sub">En tu biblioteca</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Destinatarios</div>
+            <div class="stat-value" id="dashDests">0</div>
+            <div class="stat-sub">Personas incluidas</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Pendientes</div>
+            <div class="stat-value" id="dashPend">0</div>
+            <div class="stat-sub">En espera de entrega</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Estado</div>
+            <div class="stat-value" style="font-size:1.2rem;padding-top:0.4rem;">✓</div>
+            <div class="stat-sub">Almacenamiento activo</div>
+          </div>
         </div>
-        <div class="stats-grid">
-          <div class="stat-card"><div class="stat-label">Mensajes guardados</div><div class="stat-value" id="statTotal">0</div><div class="stat-desc" id="statDesc">Cargando...</div></div>
-          <div class="stat-card"><div class="stat-label">Destinatarios</div><div class="stat-value" id="statDest">0</div><div class="stat-desc">Personas que recibirán mensajes</div></div>
-          <div class="stat-card"><div class="stat-label">Drive conectado</div><div class="stat-value" style="font-size:1.8rem;">✓</div><div class="stat-desc">Google Drive activo</div></div>
-          <div class="stat-card"><div class="stat-label">Plan activo</div><div class="stat-value" style="font-size:1.4rem;padding-top:0.4rem;">Premium</div><div class="stat-desc">Pago único — para siempre</div></div>
-        </div>
-        <div class="section-header"><h2>Mensajes recientes</h2><a onclick="showSection('mensajes',null)">Ver todos →</a></div>
-        <div class="messages-table" id="dashTable"><div class="empty-state">Cargando...</div></div>
-        <div class="bottom-grid">
-          <div class="card"><div class="card-header"><h3>Destinatarios</h3><span onclick="showSection('destinatarios',null)">Ver todos</span></div><div id="dashDests"><div class="empty-state" style="padding:1.5rem;">Cargando...</div></div></div>
+        <div class="grid-2">
           <div class="card">
-            <div class="card-header"><h3>Guardianes</h3></div>
-            <div style="display:flex;align-items:center;gap:1rem;padding:1rem 1.5rem;border-bottom:1px solid var(--border);">
-              <div class="dest-avatar" style="background:var(--purple-light);color:var(--purple);">G</div>
-              <div><div class="dest-name">Guardián principal</div><div class="dest-sub" style="font-size:0.62rem;color:var(--gold);text-transform:uppercase;letter-spacing:0.1em;">Se designa al fallecer</div></div>
-              <span style="margin-left:auto;font-size:0.68rem;background:var(--success-bg);color:var(--success);padding:0.2rem 0.5rem;border-radius:2px;">Automático</span>
-            </div>
-            <div style="display:flex;align-items:center;gap:1rem;padding:1rem 1.5rem;cursor:pointer;" onclick="openModal()">
-              <div style="width:32px;height:32px;border:1px dashed var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">+</div>
-              <div style="font-size:0.8rem;color:var(--purple-mid);">Pre-asignar guardián adicional</div>
-            </div>
+            <div class="card-header"><h3>Últimos mensajes</h3></div>
+            <table class="msg-table">
+              <thead><tr><th>Título</th><th>Destinatario</th><th>Estado</th></tr></thead>
+              <tbody id="dashMsgs"><tr><td colspan="3" class="empty-state">Sin mensajes aún</td></tr></tbody>
+            </table>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>Destinatarios recientes</h3></div>
+            <div style="padding:1rem;" id="dashDestsCard"><div class="empty-state">Sin destinatarios aún</div></div>
           </div>
         </div>
       </div>
 
       <!-- MENSAJES -->
       <div id="section-mensajes">
-        <div class="status-banner"><div class="status-dot"></div><span class="status-text" id="mensajesStatus">Mensajes guardados</span></div>
-        <div class="messages-table" id="allTable"><div class="empty-state">Cargando...</div></div>
+        <div class="card">
+          <div class="card-header"><h3>Todos tus mensajes</h3></div>
+          <table class="msg-table">
+            <thead><tr><th>Título</th><th>Destinatario</th><th>Tipo</th><th>Formato</th><th>Estado</th><th></th></tr></thead>
+            <tbody id="msgTableBody"><tr><td colspan="6" class="empty-state">Sin mensajes aún</td></tr></tbody>
+          </table>
+        </div>
       </div>
 
       <!-- DESTINATARIOS -->
       <div id="section-destinatarios">
-        <div class="card" id="destCard"><div class="card-header"><h3>Todos los destinatarios</h3></div><div class="empty-state">Cargando...</div></div>
+        <div class="card" style="margin-bottom:1.5rem;">
+          <div class="card-header"><h3>Personas que recibirán tus mensajes</h3></div>
+          <div style="padding:1.5rem;" id="destGrid"><div class="empty-state">Sin destinatarios aún</div></div>
+        </div>
       </div>
 
       <!-- PLAN -->
@@ -294,16 +262,15 @@
         <div class="card" style="max-width:480px;">
           <div class="card-header"><h3>Mi plan actual</h3></div>
           <div style="padding:2rem;">
-            <div style="font-family:'Cormorant Garamond',serif;font-size:2.5rem;font-weight:300;color:var(--purple);margin-bottom:0.25rem;">Premium</div>
-            <div style="font-size:0.85rem;color:var(--ink-muted);margin-bottom:1.5rem;">Pago único — Mensajes guardados para siempre</div>
+            <div id="planNombre" style="font-family:'Cormorant Garamond',serif;font-size:2.5rem;font-weight:300;color:var(--purple);margin-bottom:0.25rem;">Básico</div>
+            <div id="planDescripcion" style="font-size:0.85rem;color:var(--ink-muted);margin-bottom:1.5rem;">Plan gratuito</div>
             <div style="background:var(--success-bg);border-radius:3px;padding:1rem;margin-bottom:1.5rem;">
-              <div style="font-size:0.82rem;color:var(--success);font-weight:500;">✓ Sin renovaciones ni suscripciones</div>
-              <div style="font-size:0.78rem;color:#5a8a22;margin-top:0.2rem;">Tu pago cubre la custodia indefinida de todos tus mensajes en Google Drive</div>
+              <div id="planBadge" style="font-size:0.82rem;color:var(--success);font-weight:500;"></div>
+              <div id="planSubtexto" style="font-size:0.78rem;color:#5a8a22;margin-top:0.2rem;"></div>
             </div>
             <ul style="list-style:none;display:flex;flex-direction:column;gap:0.75rem;">
-              <li style="font-size:0.83rem;color:var(--ink-light);display:flex;gap:0.6rem;"><span style="color:var(--gold);">●</span> Mensajes ilimitados en vídeo, audio y texto</li>
-              <li style="font-size:0.83rem;color:var(--ink-light);display:flex;gap:0.6rem;"><span style="color:var(--gold);">●</span> Almacenamiento en Google Drive</li>
-              <li style="font-size:0.83rem;color:var(--ink-light);display:flex;gap:0.6rem;"><span style="color:var(--gold);">●</span> Registro automático en Google Sheets</li>
+              <li style="font-size:0.83rem;color:var(--ink-light);display:flex;gap:0.6rem;"><span style="color:var(--gold);">●</span> Mensajes en vídeo, audio y texto</li>
+              <li style="font-size:0.83rem;color:var(--ink-light);display:flex;gap:0.6rem;"><span style="color:var(--gold);">●</span> Almacenamiento seguro en la nube</li>
               <li style="font-size:0.83rem;color:var(--ink-light);display:flex;gap:0.6rem;"><span style="color:var(--gold);">●</span> Fechas programadas y eventos sin fecha</li>
               <li style="font-size:0.83rem;color:var(--ink-light);display:flex;gap:0.6rem;"><span style="color:var(--gold);">●</span> Sistema de guardianes</li>
             </ul>
@@ -347,57 +314,43 @@
           <button class="record-btn" id="recordBtn" onclick="toggleRecord()">
             <svg viewBox="0 0 24 24" fill="white"><circle cx="12" cy="12" r="6"/></svg>
           </button>
-          <div class="record-time" id="recordTime">0:00</div>
-          <div class="record-hint" id="recordHint">Pulsa para grabar · Máximo 5 minutos</div>
-          <audio id="audioPlay" controls style="display:none;width:100%;margin-top:1rem;"></audio>
-          <video id="videoPlay" controls style="display:none;width:100%;margin-top:1rem;max-height:180px;"></video>
+          <div id="recordTime">0:00</div>
+          <div id="recordHint">Pulsa para grabar · Máximo 5 minutos</div>
         </div>
-        <div style="text-align:center;margin:0.5rem 0;font-size:0.75rem;color:var(--ink-muted);">— o —</div>
+        <div style="margin-top:0.75rem;display:none;" id="videoPlay"><video controls style="width:100%;border-radius:3px;"></video></div>
+        <div style="margin-top:0.75rem;display:none;" id="audioPlay"><audio controls style="width:100%;"></audio></div>
       </div>
-      <div class="form-row">
+      <div id="uploadSection" style="display:none;">
         <label class="form-label">Subir archivo</label>
-        <div class="upload-area">
-          <input type="file" id="fileInput" accept="video/*,audio/*,image/*,.pdf" onchange="handleFile(event)">
-          <div class="upload-icon">📎</div>
-          <div class="upload-text" id="uploadText">Arrastra o haz clic para seleccionar</div>
-          <div class="upload-sub">MP4, MOV, MP3, WAV, JPG, PNG, PDF · Máx. 500MB</div>
+        <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+          <div id="uploadText">Arrastra o haz clic para seleccionar</div>
         </div>
-        <div class="progress-wrap" id="progressWrap" style="display:none;">
-          <div class="progress-label"><span id="progressLabel">Subiendo a Google Drive...</span><span id="progressPct">0%</span></div>
-          <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-        </div>
+        <input type="file" id="fileInput" style="display:none" onchange="handleFileSelect(event)">
       </div>
-      <div class="form-row" id="textoSection" style="display:none;"><label class="form-label">Escribe tu mensaje</label><textarea class="form-textarea" id="fTexto" placeholder="Escribe aquí..." style="min-height:160px;"></textarea></div>
-      <div class="form-row"><label class="form-label">Nota para el guardián (opcional)</label><textarea class="form-textarea" id="fNota" placeholder="Instrucciones adicionales..."></textarea></div>
+      <div id="textoSection" style="display:none;">
+        <label class="form-label">Escribe tu mensaje</label>
+        <textarea class="form-textarea" id="fTexto" placeholder="Escribe aquí tu mensaje..."></textarea>
+      </div>
+      <div class="form-row"><label class="form-label">Nota para el guardián (opcional)</label><input type="text" class="form-input" id="fNota" placeholder="Instrucciones especiales para quien custodia el mensaje"></div>
     </div>
     <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
-      <button class="btn-save" id="btnGuardar" onclick="guardarMensaje()">Guardar mensaje →</button>
+      <button class="logout-btn" style="width:auto;padding:0.5rem 1.25rem;" onclick="closeModal()">Cancelar</button>
+      <button class="btn-primary" onclick="guardarMensaje()">Guardar mensaje</button>
     </div>
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
 
 <script>
-  // ── CONFIG ──────────────────────────────────────────────────────
   const SUPABASE_URL      = 'https://mnqkxjnzqdduyhmjsnvc.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_lX9eAet5Dh8dhlIgRi3XdQ_bZSZajF-';
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // ── STATE ───────────────────────────────────────────────────────
-  let mensajes = [], selectedFmt = 'video';
-  let mediaRecorder = null, recChunks = [], recBlob = null;
-  let recInterval = null, recSecs = 0, isRecording = false;
-  let selectedFile = null;
-  let user = { id: '', name: '', email: '', initials: '?' };
+  let user = null;
+  let mensajes = [];
 
-  const COLORS = [
-    { bg: '#E6F1FB', fg: '#185FA5' }, { bg: '#EAF3DE', fg: '#3B6D11' },
-    { bg: '#F5EFE6', fg: '#714f0b' }, { bg: '#EEEDFE', fg: '#3D2D8F' }
-  ];
-
-  // ── AUTH ────────────────────────────────────────────────────────
   window.onload = async () => {
     const { data: { session } } = await sb.auth.getSession();
     if (session) {
@@ -411,7 +364,6 @@
         document.getElementById('loginScreen').style.display = 'none';
         loadMensajes();
       } else {
-        mensajes = [];
         document.getElementById('loginScreen').style.display = 'flex';
       }
     });
@@ -429,6 +381,24 @@
     document.getElementById('topbarSub').textContent = `Bienvenido de vuelta, ${user.name.split(' ')[0]}`;
     const av = document.getElementById('userAvatar');
     av.innerHTML = user.picture ? `<img src="${user.picture}" alt="">` : user.initials;
+    loadProfile(u.id);
+  }
+
+  async function loadProfile(userId) {
+    const { data } = await sb.from('profiles').select('plan').eq('id', userId).single();
+    const plan = data?.plan || 'basico';
+    const esPremium = plan === 'premium';
+    document.getElementById('userPlanLabel').textContent = esPremium ? 'Plan Premium' : 'Plan Básico';
+    document.getElementById('planNombre').textContent = esPremium ? 'Premium' : 'Básico';
+    document.getElementById('planDescripcion').textContent = esPremium
+      ? 'Pago único — Mensajes guardados para siempre'
+      : 'Plan gratuito';
+    document.getElementById('planBadge').textContent = esPremium
+      ? '✓ Sin renovaciones ni suscripciones'
+      : 'Actualiza a Premium para acceso completo';
+    document.getElementById('planSubtexto').textContent = esPremium
+      ? 'Tu pago cubre la custodia indefinida de todos tus mensajes'
+      : '';
   }
 
   async function handleLogin() {
@@ -443,149 +413,231 @@
     await sb.auth.signOut();
   }
 
-  // ── LOAD MENSAJES ────────────────────────────────────────────────
   async function loadMensajes() {
-    try {
-      const { data, error } = await sb.from('mensajes')
-        .select('*')
-        .order('created_at', { ascending: false });
-      if (error) throw error;
-      mensajes = data || [];
-
-      const destsMap = {};
-      mensajes.forEach(m => { if (m.destinatario) destsMap[m.destinatario] = true; });
-      const numDests = Object.keys(destsMap).length;
-
-      document.getElementById('statTotal').textContent = mensajes.length;
-      document.getElementById('statDest').textContent = numDests;
-      document.getElementById('msgCount').textContent = mensajes.length;
-      document.getElementById('mensajesStatus').textContent = `${mensajes.length} mensajes guardados de forma segura`;
-      const tipos = mensajes.reduce((a,m) => { m.tipo_entrega==='despedida'?a.d++:m.tipo_entrega==='fecha'?a.f++:a.e++; return a; }, {f:0,e:0,d:0});
-      document.getElementById('statDesc').textContent = `${tipos.f} con fecha · ${tipos.e} por evento`;
-      document.getElementById('lastCheck').textContent = `Última comprobación: ${new Date().toLocaleDateString('es-ES')}`;
-
-      renderTabla('dashTable', mensajes.slice(0,4));
-      renderTabla('allTable', mensajes);
-      renderDests(mensajes);
-      renderDashDests(mensajes);
-    } catch(e) { showToast('Error al cargar mensajes.', 'error'); }
+    const { data, error } = await sb.from('mensajes').select('*').order('created_at', { ascending: false });
+    if (error) { showToast('Error al cargar mensajes', 'error'); return; }
+    mensajes = data || [];
+    renderAll();
   }
 
-  // ── STORAGE ─────────────────────────────────────────────────────
-  async function uploadStorage(file, nombre, onPct) {
-    const path = `${user.id}/${Date.now()}_${nombre}`;
-    onPct(30);
-    const { error } = await sb.storage.from('mensajes-archivos').upload(path, file);
-    if (error) throw error;
-    onPct(100);
-    return path;
+  function renderAll() {
+    renderDashboard();
+    renderMensajes();
+    renderDests();
+  }
+
+  function renderDashboard() {
+    document.getElementById('dashTotal').textContent = mensajes.length;
+    const dests = [...new Set(mensajes.map(m => m.destinatario))].length;
+    document.getElementById('dashDests').textContent = dests;
+    document.getElementById('dashPend').textContent = mensajes.filter(m => m.estado === 'pendiente').length;
+    const tbody = document.getElementById('dashMsgs');
+    const last3 = mensajes.slice(0, 3);
+    tbody.innerHTML = last3.length ? last3.map(m => `
+      <tr>
+        <td>${m.titulo}</td>
+        <td>${m.destinatario}</td>
+        <td><span class="badge badge-${m.estado}">${stLabel(m.estado)}</span></td>
+      </tr>`).join('') : '<tr><td colspan="3" class="empty-state">Sin mensajes aún</td></tr>';
+    renderDashDests(mensajes);
+  }
+
+  function renderDashDests(msgs) {
+    const map = {};
+    msgs.forEach(m => {
+      if (!map[m.destinatario]) map[m.destinatario] = { email: m.email_destinatario || '', count: 0 };
+      map[m.destinatario].count++;
+    });
+    const el = document.getElementById('dashDestsCard');
+    const entries = Object.entries(map);
+    el.innerHTML = entries.length ? entries.slice(0,5).map(([name, d]) =>
+      `<div style="display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid var(--border);">
+        <div><div style="font-size:0.83rem;color:var(--ink);">${name}</div><div style="font-size:0.72rem;color:var(--ink-muted);">${d.email}</div></div>
+        <span class="dest-count">${d.count} ${d.count === 1 ? 'mensaje' : 'mensajes'}</span>
+      </div>`).join('') : '<div class="empty-state">Sin destinatarios aún</div>';
+  }
+
+  function stClass(s) { return s === 'enviado' ? 'badge-enviado' : s === 'archivado' ? 'badge-archivado' : 'badge-pendiente'; }
+  function stLabel(s) { return s === 'enviado' ? 'Enviado' : s === 'archivado' ? 'Archivado' : 'Pendiente'; }
+  function fmtLabel(f) { return f === 'video' ? '🎥 Vídeo' : f === 'audio' ? '🎙️ Audio' : '✍️ Texto'; }
+  function tipoLabel(t) { return t === 'evento' ? 'Evento' : t === 'fecha' ? 'Fecha' : 'Despedida'; }
+
+  function renderMensajes() {
+    const tbody = document.getElementById('msgTableBody');
+    tbody.innerHTML = mensajes.length ? mensajes.map(m => `
+      <tr>
+        <td>${m.titulo}</td>
+        <td>${m.destinatario}</td>
+        <td>${tipoLabel(m.tipo_entrega)}</td>
+        <td>${fmtLabel(m.formato)}</td>
+        <td><span class="badge ${stClass(m.estado)}">${stLabel(m.estado)}</span></td>
+        <td>
+          ${m.storage_path ? `<button class="link-btn" onclick="verArchivo('${m.storage_path}')">Ver</button>` : ''}
+          <button class="link-btn" onclick="eliminarMensaje('${m.id}')">Eliminar</button>
+        </td>
+      </tr>`).join('') : '<tr><td colspan="6" class="empty-state">Sin mensajes aún</td></tr>';
+  }
+
+  function renderDests(msgs) {
+    const all = msgs || mensajes;
+    const map = {};
+    all.forEach(m => {
+      if (!map[m.destinatario]) map[m.destinatario] = { email: m.email_destinatario || '', count: 0 };
+      map[m.destinatario].count++;
+    });
+    const el = document.getElementById('destGrid');
+    const entries = Object.entries(map);
+    el.innerHTML = entries.length ? `<div class="dest-grid">${entries.map(([name, d]) =>
+      `<div class="dest-card"><div class="dest-name">${name}</div><div class="dest-email">${d.email}</div><span class="dest-count">${d.count} ${d.count === 1 ? 'mensaje' : 'mensajes'}</span></div>`
+    ).join('')}</div>` : '<div class="empty-state">Sin destinatarios aún</div>';
   }
 
   async function verArchivo(path) {
     const { data, error } = await sb.storage.from('mensajes-archivos').createSignedUrl(path, 3600);
-    if (error) { showToast('No se pudo abrir el archivo.', 'error'); return; }
+    if (error || !data?.signedUrl) { showToast('No se pudo abrir el archivo', 'error'); return; }
     window.open(data.signedUrl, '_blank');
   }
 
-  // ── SAVE ────────────────────────────────────────────────────────
-  async function guardarMensaje() {
-    const titulo  = document.getElementById('fTitulo').value.trim();
-    const dest    = document.getElementById('fDestinatario').value.trim();
-    const email   = document.getElementById('fEmail').value.trim();
-    const tipo    = document.getElementById('fTipo').value;
-    const evento  = document.getElementById('fEvento').value.trim();
-    const fecha   = document.getElementById('fFecha').value;
-    const texto   = document.getElementById('fTexto').value.trim();
-
-    if (!titulo || !dest) { showToast('Completa el título y el destinatario.', 'error'); return; }
-
-    const btn = document.getElementById('btnGuardar');
-    btn.disabled = true; btn.textContent = 'Guardando...';
-
-    try {
-      let storage_path = null;
-      const archivo = recBlob || selectedFile;
-
-      if (selectedFmt === 'texto') {
-        const blob = new File([texto], `${titulo}.txt`, { type: 'text/plain' });
-        showProg(true); storage_path = await uploadStorage(blob, `${titulo}.txt`, updateProg); showProg(false);
-      } else if (archivo) {
-        const ext = archivo.name?.split('.').pop() || (selectedFmt==='audio'?'mp3':'mp4');
-        showProg(true); storage_path = await uploadStorage(archivo, `${titulo}.${ext}`, updateProg); showProg(false);
-      } else {
-        showToast('Graba o sube un archivo para continuar.', 'error');
-        btn.disabled=false; btn.textContent='Guardar mensaje →'; return;
-      }
-
-      const { error } = await sb.from('mensajes').insert({
-        user_id: user.id,
-        titulo,
-        destinatario: dest,
-        email_destinatario: email || null,
-        tipo_entrega: tipo,
-        evento: tipo !== 'fecha' ? (tipo==='despedida' ? 'Despedida general — al fallecer' : (evento||'Evento por definir')) : null,
-        fecha_entrega: tipo === 'fecha' ? (fecha||null) : null,
-        formato: selectedFmt,
-        storage_path,
-        contenido_texto: selectedFmt==='texto' ? texto : null,
-        nota_guardian: document.getElementById('fNota').value.trim() || null
-      });
-      if (error) throw error;
-
-      showToast(`✓ "${titulo}" guardado correctamente.`, 'success');
-      closeModal(); resetModal(); await loadMensajes();
-    } catch(e) { showToast('Error al guardar. Inténtalo de nuevo.', 'error'); showProg(false); }
-
-    btn.disabled=false; btn.textContent='Guardar mensaje →';
+  async function eliminarMensaje(id) {
+    if (!confirm('¿Eliminar este mensaje?')) return;
+    const { error } = await sb.from('mensajes').delete().eq('id', id);
+    if (error) { showToast('Error al eliminar', 'error'); return; }
+    showToast('Mensaje eliminado', 'info');
+    loadMensajes();
   }
 
-  // ── RECORDING ───────────────────────────────────────────────────
-  async function toggleRecord() {
-    if (!isRecording) {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia(selectedFmt==='audio' ? {audio:true} : {video:true,audio:true});
-        mediaRecorder = new MediaRecorder(stream); recChunks = [];
-        mediaRecorder.ondataavailable = e => { if(e.data.size>0) recChunks.push(e.data); };
-        mediaRecorder.onstop = () => {
-          const type = selectedFmt==='audio' ? 'audio/mp3' : 'video/mp4';
-          recBlob = new Blob(recChunks, {type}); recBlob.name = `grabacion.${selectedFmt==='audio'?'mp3':'mp4'}`;
-          const url = URL.createObjectURL(recBlob);
-          if (selectedFmt==='audio') { const a=document.getElementById('audioPlay'); a.src=url; a.style.display='block'; }
-          else { const v=document.getElementById('videoPlay'); v.src=url; v.style.display='block'; }
-          stream.getTracks().forEach(t=>t.stop());
-        };
-        mediaRecorder.start(); isRecording=true; recSecs=0;
-        document.getElementById('recordBtn').classList.add('recording');
-        document.getElementById('recordHint').textContent='Grabando... pulsa para parar';
-        recInterval = setInterval(() => { recSecs++; const m=Math.floor(recSecs/60),s=recSecs%60; document.getElementById('recordTime').textContent=`${m}:${s.toString().padStart(2,'0')}`; if(recSecs>=300) toggleRecord(); }, 1000);
-      } catch(e) { showToast('No se pudo acceder al micrófono/cámara.','error'); }
-    } else {
-      mediaRecorder.stop(); isRecording=false; clearInterval(recInterval);
-      document.getElementById('recordBtn').classList.remove('recording');
-      document.getElementById('recordHint').textContent='Grabación completada ✓';
-    }
-  }
-
-  function handleFile(e) {
-    const f = e.target.files[0]; if(!f) return;
-    selectedFile=f; recBlob=null;
-    document.getElementById('uploadText').textContent=`✓ ${f.name} (${(f.size/1024/1024).toFixed(1)} MB)`;
-  }
-
-  // ── UI HELPERS ──────────────────────────────────────────────────
-  function showProg(show) { document.getElementById('progressWrap').style.display=show?'block':'none'; if(!show){document.getElementById('progressFill').style.width='0%';document.getElementById('progressPct').textContent='0%';} }
-  function updateProg(p) { document.getElementById('progressFill').style.width=p+'%'; document.getElementById('progressPct').textContent=p+'%'; document.getElementById('progressLabel').textContent=p<100?'Subiendo...':'Procesando...'; }
+  let selectedFmt = 'video';
+  let selectedFile = null;
+  let recBlob = null;
+  let recChunks = [];
+  let mediaRecorder = null;
+  let isRecording = false;
+  let recInterval = null;
+  let recSeconds = 0;
 
   function selectFmt(el, fmt) {
-    document.querySelectorAll('.format-opt').forEach(o=>o.classList.remove('selected')); el.classList.add('selected'); selectedFmt=fmt;
-    document.getElementById('recordSection').style.display=fmt==='texto'?'none':'block';
-    document.getElementById('textoSection').style.display=fmt==='texto'?'block':'none';
+    selectedFmt = fmt;
+    document.querySelectorAll('.format-opt').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('recordSection').style.display  = (fmt === 'video' || fmt === 'audio') ? 'block' : 'none';
+    document.getElementById('uploadSection').style.display  = (fmt === 'video' || fmt === 'audio') ? 'block' : 'none';
+    document.getElementById('textoSection').style.display   = fmt === 'texto' ? 'block' : 'none';
+    const rb = document.getElementById('recordBtn');
+    if (fmt === 'video') { rb.style.background = 'var(--purple)'; }
+    else if (fmt === 'audio') { rb.style.background = '#c0392b'; }
   }
 
   function toggleFecha() {
-    const t=document.getElementById('fTipo').value;
-    document.getElementById('rowEvento').style.display=t==='evento'?'block':'none';
-    document.getElementById('rowFecha').style.display=t==='fecha'?'block':'none';
+    const tipo = document.getElementById('fTipo').value;
+    document.getElementById('rowEvento').style.display = tipo === 'evento' ? 'flex' : 'none';
+    document.getElementById('rowFecha').style.display  = tipo === 'fecha'  ? 'flex' : 'none';
+  }
+
+  function handleDragOver(e) { e.preventDefault(); document.getElementById('uploadArea').classList.add('drag'); }
+  function handleDragLeave()  { document.getElementById('uploadArea').classList.remove('drag'); }
+  function handleDrop(e)      { e.preventDefault(); handleDragLeave(); const f = e.dataTransfer.files[0]; if(f) setFile(f); }
+  function handleFileSelect(e){ const f = e.target.files[0]; if(f) setFile(f); }
+  function setFile(f) { selectedFile = f; document.getElementById('uploadText').textContent = f.name; }
+
+  async function toggleRecord() {
+    if (isRecording) {
+      mediaRecorder.stop();
+      isRecording = false;
+      clearInterval(recInterval);
+      document.getElementById('recordBtn').classList.remove('recording');
+      document.getElementById('recordHint').textContent = 'Grabación completada';
+      return;
+    }
+    try {
+      const constraints = selectedFmt === 'video' ? { video: true, audio: true } : { audio: true };
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      mediaRecorder = new MediaRecorder(stream);
+      recChunks = [];
+      mediaRecorder.ondataavailable = e => recChunks.push(e.data);
+      mediaRecorder.onstop = () => {
+        const mime = selectedFmt === 'video' ? 'video/webm' : 'audio/webm';
+        recBlob = new Blob(recChunks, { type: mime });
+        const url = URL.createObjectURL(recBlob);
+        if (selectedFmt === 'video') {
+          const vp = document.getElementById('videoPlay');
+          vp.style.display = 'block';
+          vp.querySelector('video').src = url;
+        } else {
+          const ap = document.getElementById('audioPlay');
+          ap.style.display = 'block';
+          ap.querySelector('audio').src = url;
+        }
+        stream.getTracks().forEach(t => t.stop());
+      };
+      mediaRecorder.start();
+      isRecording = true;
+      recSeconds = 0;
+      document.getElementById('recordBtn').classList.add('recording');
+      document.getElementById('recordHint').textContent = 'Grabando... Pulsa para detener';
+      recInterval = setInterval(() => {
+        recSeconds++;
+        const m = Math.floor(recSeconds/60), s = recSeconds%60;
+        document.getElementById('recordTime').textContent = `${m}:${s.toString().padStart(2,'0')}`;
+        if (recSeconds >= 300) { mediaRecorder.stop(); isRecording = false; clearInterval(recInterval); }
+      }, 1000);
+    } catch(e) {
+      showToast('No se pudo acceder al micrófono/cámara', 'error');
+    }
+  }
+
+  async function uploadStorage(file, nombre) {
+    const path = `${user.id}/${Date.now()}_${nombre}`;
+    const { error } = await sb.storage.from('mensajes-archivos').upload(path, file);
+    if (error) throw new Error(error.message);
+    return path;
+  }
+
+  async function guardarMensaje() {
+    const titulo    = document.getElementById('fTitulo').value.trim();
+    const dest      = document.getElementById('fDestinatario').value.trim();
+    const email     = document.getElementById('fEmail').value.trim();
+    const tipo      = document.getElementById('fTipo').value;
+    const evento    = document.getElementById('fEvento').value.trim();
+    const fecha     = document.getElementById('fFecha').value;
+    const nota      = document.getElementById('fNota').value.trim();
+    const texto     = document.getElementById('fTexto').value.trim();
+
+    if (!titulo || !dest) { showToast('Título y destinatario son obligatorios', 'error'); return; }
+
+    let storagePath = null;
+    try {
+      if (selectedFmt !== 'texto') {
+        if (recBlob) {
+          const ext = selectedFmt === 'video' ? 'webm' : 'webm';
+          storagePath = await uploadStorage(recBlob, `${titulo}.${ext}`);
+        } else if (selectedFile) {
+          storagePath = await uploadStorage(selectedFile, selectedFile.name);
+        }
+      }
+    } catch(e) {
+      showToast('Error al subir archivo: ' + e.message, 'error'); return;
+    }
+
+    const row = {
+      user_id:            user.id,
+      titulo,
+      destinatario:       dest,
+      email_destinatario: email || null,
+      tipo_entrega:       tipo,
+      evento:             tipo === 'evento' ? evento : null,
+      fecha_entrega:      tipo === 'fecha' ? fecha : null,
+      formato:            selectedFmt,
+      storage_path:       storagePath,
+      contenido_texto:    selectedFmt === 'texto' ? texto : null,
+      nota_guardian:      nota || null
+    };
+
+    const { error } = await sb.from('mensajes').insert(row);
+    if (error) { showToast('Error al guardar: ' + error.message, 'error'); return; }
+    showToast('Mensaje guardado', 'success');
+    closeModal();
+    resetModal();
+    loadMensajes();
   }
 
   function openModal() { document.getElementById('modal').classList.add('open'); }
@@ -598,88 +650,31 @@
     document.getElementById('fileInput').value=''; document.getElementById('audioPlay').style.display='none'; document.getElementById('videoPlay').style.display='none';
     document.getElementById('recordTime').textContent='0:00'; document.getElementById('recordHint').textContent='Pulsa para grabar · Máximo 5 minutos';
     selectedFile=null; recBlob=null; recChunks=[]; if(isRecording&&mediaRecorder){mediaRecorder.stop();isRecording=false;clearInterval(recInterval);}
-    showProg(false);
   }
 
-  function showToast(msg, type='success') {
-    const t=document.getElementById('toast'); t.textContent=msg; t.className=`toast ${type} show`;
-    setTimeout(()=>t.className='toast',4000);
+  function showToast(msg, type = 'info') {
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.textContent = msg;
+    document.getElementById('toastContainer').appendChild(t);
+    setTimeout(() => t.remove(), 3500);
   }
 
   const SECTION_TITLES = {
     dashboard: ['Inicio', ()=>`Bienvenido de vuelta, ${user.name.split(' ')[0]}`],
     mensajes:  ['Mis mensajes', ()=>`${mensajes.length} mensajes guardados`],
     destinatarios: ['Destinatarios', ()=>'Personas que recibirán tus mensajes'],
-    plan: ['Mi plan', ()=>'Premium — Pago único para siempre']
+    plan: ['Mi plan', ()=>document.getElementById('userPlanLabel')?.textContent || 'Mi plan']
   };
 
   function showSection(name, el) {
     document.querySelectorAll('.section-panels > div').forEach(d=>d.classList.remove('active'));
     document.getElementById('section-'+name).classList.add('active');
-    document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
     if(el) el.classList.add('active');
-    if(SECTION_TITLES[name]) { document.getElementById('topbarTitle').textContent=SECTION_TITLES[name][0]; document.getElementById('topbarSub').textContent=SECTION_TITLES[name][1](); }
-  }
-
-  // ── RENDER ──────────────────────────────────────────────────────
-  function fmtClass(f) { const fl=f.toLowerCase(); return fl.includes('vid')?'format-video':fl==='audio'?'format-audio':'format-text'; }
-  function stClass(m) { return m.tipo_entrega==='despedida'?'status-despedida':m.tipo_entrega==='fecha'?'status-programado':'status-evento'; }
-  function stLabel(m) { return m.tipo_entrega==='despedida'?'Despedida':m.tipo_entrega==='fecha'?'Programado':'Por evento'; }
-
-  function renderTabla(id, lista) {
-    const c = document.getElementById(id);
-    if (!lista.length) { c.innerHTML=`<div class="table-head"><span class="th">Mensaje</span><span class="th">Para</span><span class="th">Evento</span><span class="th">Formato</span><span class="th">Estado</span><span class="th"></span></div><div class="empty-state">Aún no tienes mensajes. ¡Crea tu primero!</div>`; return; }
-    let h=`<div class="table-head"><span class="th">Mensaje</span><span class="th">Para</span><span class="th">Evento</span><span class="th">Formato</span><span class="th">Estado</span><span class="th"></span></div>`;
-    lista.forEach(m => {
-      const eventoLabel = m.tipo_entrega==='despedida'?'Al fallecer':m.tipo_entrega==='fecha'?(m.fecha_entrega||'-'):(m.evento||'-');
-      const subInfo = m.tipo_entrega==='fecha'?(m.fecha_entrega||'-'):m.id.slice(0,8);
-      const verBtn = m.storage_path ? `<button onclick="verArchivo('${m.storage_path}')" class="action-btn" title="Ver archivo"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 2H3a1 1 0 00-1 1v10a1 1 0 001 1h10a1 1 0 001-1V9M9 1h6v6M8 8l6-6"/></svg></button>` : '';
-      h+=`<div class="table-row">
-        <div><div class="msg-title">${m.titulo||'-'}</div><div class="msg-sub">${subInfo}</div></div>
-        <div class="td">${m.destinatario||'-'}</div>
-        <div class="td">${eventoLabel}</div>
-        <div><span class="format-badge ${fmtClass(m.formato)}">${m.formato}</span></div>
-        <div><span class="status-badge ${stClass(m)}">${stLabel(m)}</span></div>
-        <div class="row-actions">${verBtn}</div>
-      </div>`;
-    });
-    c.innerHTML=h;
-  }
-
-  function renderDests(lista) {
-    const card = document.getElementById('destCard');
-    const map = {};
-    lista.forEach(m => {
-      if (!m.destinatario) return;
-      if (!map[m.destinatario]) map[m.destinatario] = { name: m.destinatario, email: m.email_destinatario, count: 0 };
-      map[m.destinatario].count++;
-    });
-    const dests = Object.values(map);
-    if (!dests.length) { card.innerHTML=`<div class="card-header"><h3>Todos los destinatarios</h3></div><div class="empty-state">Añade mensajes para ver los destinatarios aquí.</div>`; return; }
-    let h=`<div class="card-header"><h3>Todos los destinatarios</h3></div>`;
-    dests.forEach((d,i) => {
-      const c=COLORS[i%COLORS.length], init=d.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-      h+=`<div class="dest-item"><div class="dest-avatar" style="background:${c.bg};color:${c.fg};">${init}</div><div><div class="dest-name">${d.name}</div><div class="dest-sub">${d.email||''}</div></div><div class="dest-count">${d.count} mensaje${d.count!==1?'s':''}</div></div>`;
-    });
-    card.innerHTML=h;
-  }
-
-  function renderDashDests(lista) {
-    const el = document.getElementById('dashDests');
-    const map = {};
-    lista.forEach(m => {
-      if (!m.destinatario) return;
-      if (!map[m.destinatario]) map[m.destinatario] = { name: m.destinatario, count: 0 };
-      map[m.destinatario].count++;
-    });
-    const dests = Object.values(map).slice(0,4);
-    if (!dests.length) { el.innerHTML=`<div class="empty-state" style="padding:1.5rem;">Sin destinatarios aún</div>`; return; }
-    let h='';
-    dests.forEach((d,i) => {
-      const c=COLORS[i%COLORS.length], init=d.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-      h+=`<div class="dest-item"><div class="dest-avatar" style="background:${c.bg};color:${c.fg};">${init}</div><div><div class="dest-name">${d.name}</div><div class="dest-sub">${d.count} mensaje${d.count!==1?'s':''}</div></div></div>`;
-    });
-    el.innerHTML=h;
+    const [title, sub] = SECTION_TITLES[name] || [name, ()=>''];
+    document.getElementById('topbarTitle').textContent = title;
+    document.getElementById('topbarSub').textContent = sub();
   }
 </script>
 </body>
