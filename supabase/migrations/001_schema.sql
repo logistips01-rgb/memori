@@ -4,7 +4,6 @@
 
 -- Extensiones
 create extension if not exists "uuid-ossp";
-create extension if not exists "pg_cron";
 
 -- ============================================================
 -- FUNERAL HOMES
@@ -228,20 +227,4 @@ create policy "Users delete own files"
     auth.uid()::text = (storage.foldername(name))[1]
   );
 
--- ============================================================
--- CRON: entrega diaria de mensajes programados
--- ============================================================
-select cron.schedule(
-  'deliver-scheduled-messages',
-  '0 8 * * *',
-  $$
-    select net.http_post(
-      url := current_setting('app.supabase_url') || '/functions/v1/deliver-messages',
-      headers := jsonb_build_object(
-        'Content-Type', 'application/json',
-        'Authorization', 'Bearer ' || current_setting('app.service_role_key')
-      ),
-      body := '{}'
-    );
-  $$
-);
+-- CRON: configurar en cron-job.org apuntando a /functions/v1/deliver-messages
