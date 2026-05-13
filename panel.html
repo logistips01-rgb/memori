@@ -418,44 +418,51 @@
     unico:   'price_1TWfWhHlTrPIiyXFwjT4IKJw',
   };
 
-  let planSeleccionado = 'anual';
+  let planSeleccionado = 'mensual';
   let perfilData = null;
 
   async function loadProfile(userId) {
     const { data } = await sb.from('profiles').select('plan, created_at').eq('id', userId).single();
     perfilData = data;
     const plan = data?.plan || 'basico';
-    const esPremium = plan === 'premium';
+    const esPremiumReal = plan === 'premium';
 
-    document.getElementById('userPlanLabel').textContent = esPremium ? 'Plan Premium' : 'Plan Básico';
-    document.getElementById('planNombre').textContent = esPremium ? 'Premium' : 'Básico';
-    document.getElementById('planDescripcion').textContent = esPremium
-      ? 'Acceso completo a todos tus mensajes'
-      : 'Plan gratuito · 3 meses de prueba';
-    document.getElementById('planBadge').textContent = esPremium
-      ? '✓ Todos tus mensajes están activos y seguros'
-      : '✓ Primer mensaje siempre gratuito';
-    document.getElementById('planSubtexto').textContent = esPremium
-      ? '' : 'Los demás mensajes se bloquean a los 3 meses sin plan activo';
+    const diasDesdeRegistro = data?.created_at
+      ? Math.floor((Date.now() - new Date(data.created_at)) / 86400000) : 0;
+    const diasRestantes = 90 - diasDesdeRegistro;
+    const enPeriodoPrueba = !esPremiumReal && diasRestantes > 0;
 
     const planesGrid = document.getElementById('planesGrid');
-    if (esPremium) {
-      if (planesGrid) planesGrid.style.display = 'none';
-    } else {
-      if (planesGrid) planesGrid.style.display = 'block';
-      seleccionarPlan('mensual');
-    }
+    const banner = document.getElementById('freemiumBanner');
+    const aviso = document.getElementById('freemiumAviso');
 
-    if (!esPremium && data?.created_at) {
-      const diasDesdeRegistro = Math.floor((Date.now() - new Date(data.created_at)) / 86400000);
-      const diasRestantes = 90 - diasDesdeRegistro;
-      const banner = document.getElementById('freemiumBanner');
-      const aviso = document.getElementById('freemiumAviso');
-      if (diasRestantes <= 0) {
-        if (banner) banner.style.display = 'block';
-      } else if (diasRestantes <= 15) {
-        if (aviso) { aviso.style.display = 'block'; aviso.textContent = `Te quedan ${diasRestantes} días de acceso completo gratuito. Activa un plan para no perder el acceso a tus mensajes.`; }
+    if (esPremiumReal) {
+      document.getElementById('userPlanLabel').textContent = 'Plan Premium';
+      document.getElementById('planNombre').textContent = 'Premium';
+      document.getElementById('planDescripcion').textContent = 'Acceso completo a todos tus mensajes';
+      document.getElementById('planBadge').textContent = '✓ Todos tus mensajes están activos y seguros';
+      document.getElementById('planSubtexto').textContent = '';
+      if (planesGrid) planesGrid.style.display = 'none';
+    } else if (enPeriodoPrueba) {
+      document.getElementById('userPlanLabel').textContent = 'Premium · Prueba';
+      document.getElementById('planNombre').textContent = 'Premium';
+      document.getElementById('planDescripcion').textContent = `Prueba gratuita · ${diasRestantes} días restantes`;
+      document.getElementById('planBadge').textContent = '✓ Acceso completo durante tu periodo de prueba';
+      document.getElementById('planSubtexto').textContent = 'Al terminar, solo tu primer mensaje quedará accesible sin plan activo';
+      if (diasRestantes <= 15) {
+        if (aviso) { aviso.style.display = 'block'; aviso.textContent = `⚠ Te quedan ${diasRestantes} días de prueba gratuita. Activa un plan para no perder el acceso a tus mensajes.`; }
+        if (planesGrid) { planesGrid.style.display = 'block'; seleccionarPlan('mensual'); }
+      } else {
+        if (planesGrid) planesGrid.style.display = 'none';
       }
+    } else {
+      document.getElementById('userPlanLabel').textContent = 'Plan Básico';
+      document.getElementById('planNombre').textContent = 'Básico';
+      document.getElementById('planDescripcion').textContent = 'Periodo de prueba finalizado';
+      document.getElementById('planBadge').textContent = '✓ Tu primer mensaje permanece accesible';
+      document.getElementById('planSubtexto').textContent = 'Activa un plan para recuperar el acceso a todos tus mensajes';
+      if (banner) banner.style.display = 'block';
+      if (planesGrid) { planesGrid.style.display = 'block'; seleccionarPlan('mensual'); }
     }
   }
 
